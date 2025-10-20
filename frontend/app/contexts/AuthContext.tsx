@@ -44,6 +44,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Get Web Client ID from Firebase config
+  const webClientId = process.env.EXPO_PUBLIC_FIREBASE_WEB_CLIENT_ID || 
+    `${process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID}.apps.googleusercontent.com`;
+
+  const [request, response, promptAsync] = Google.useIdTokenAuthRequest(
+    {
+      clientId: webClientId,
+    }
+  );
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
@@ -53,6 +63,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return unsubscribe;
   }, []);
 
+  // Handle Google Sign In response
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { id_token } = response.params;
+      
+      const credential = GoogleAuthProvider.credential(id_token);
+      signInWithCredential(auth, credential)
+        .then(() => {
+          console.log('Google sign in successful');
+        })
+        .catch((error) => {
+          console.error('Error signing in with Google:', error);
+        });
+    }
+  }, [response]);
+
   const signUp = async (email: string, password: string) => {
     await createUserWithEmailAndPassword(auth, email, password);
   };
@@ -61,12 +87,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await signInWithEmailAndPassword(auth, email, password);
   };
 
+  const signInWithGoogle = async () => {
+    if (Platform.OS === 'web') {
+      // For web, use popup
+      const provider = new GoogleAuthProvider();
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (error) {
+        console.error('Google sign in error:', error);
+        throw error;
+      }
+    } else {
+      // For native, use expo-auth-session
+      await promptAsync();
+    }
+  };
+
   const signOut = async () => {
     await firebaseSignOut(auth);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signUp, signIn, signInWithGoogle, signOut }}>
       {children}
     </AuthContext.Provider>
   );
