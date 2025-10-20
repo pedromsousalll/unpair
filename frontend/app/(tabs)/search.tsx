@@ -18,7 +18,7 @@ import {
   CircleIcon,
 } from '@gluestack-ui/themed';
 import { collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { db } from './config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
