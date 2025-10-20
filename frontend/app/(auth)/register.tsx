@@ -3,6 +3,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-na
 import {
   Box,
   VStack,
+  HStack,
   Heading,
   Input,
   InputField,
