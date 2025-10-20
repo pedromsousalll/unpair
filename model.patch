@@ -1,266 +1,334 @@
+diff --git a/frontend/app/(tabs)/settings.tsx b/frontend/app/(tabs)/settings.tsx
+index d4dea5c..9076914 100644
+--- a/frontend/app/(tabs)/settings.tsx
++++ b/frontend/app/(tabs)/settings.tsx
+@@ -85,12 +85,12 @@ export default function SettingsScreen() {
+   return (
+     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+       <ScrollView contentContainerStyle={styles.scrollContent}>
+-        <Box padding="$4">
++        <Box padding="$4" backgroundColor={colors.background}>
+           {/* Profile Section */}
+           <VStack space="lg" alignItems="center" marginBottom="$6">
+             <Pressable onPress={handlePhotoUpload} disabled={uploading}>
+               <Box position="relative">
+-                <Avatar size="2xl">
++                <Avatar size="2xl" backgroundColor={colors.surface}>
+                   {user?.photoURL ? (
+                     <AvatarImage source={{ uri: user.photoURL }} />
+                   ) : (
+@@ -119,7 +119,7 @@ export default function SettingsScreen() {
+             </VStack>
+           </VStack>
+ 
+-          <Divider marginVertical="$4" />
++          <Divider marginVertical="$4" backgroundColor={colors.border} />
+ 
+           {/* Theme Settings */}
+           <VStack space="md" marginBottom="$6">
+@@ -133,8 +133,9 @@ export default function SettingsScreen() {
+                 <Text color={colors.text}>Dark Mode</Text>
+               </HStack>
+               <Switch
+-                value={isDark}
++                value={themeMode === 'dark'}
+                 onValueChange={(value) => setThemeMode(value ? 'dark' : 'light')}
++                disabled={themeMode === 'system'}
+               />
+             </HStack>
+ 
+@@ -145,12 +146,12 @@ export default function SettingsScreen() {
+               </HStack>
+               <Switch
+                 value={themeMode === 'system'}
+-                onValueChange={(value) => setThemeMode(value ? 'system' : 'light')}
++                onValueChange={(value) => setThemeMode(value ? 'system' : (isDark ? 'dark' : 'light'))}
+               />
+             </HStack>
+           </VStack>
+ 
+-          <Divider marginVertical="$4" />
++          <Divider marginVertical="$4" backgroundColor={colors.border} />
+ 
+           {/* Account Settings */}
+           <VStack space="md" marginBottom="$6">
+@@ -189,7 +190,7 @@ export default function SettingsScreen() {
+             </Pressable>
+           </VStack>
+ 
+-          <Divider marginVertical="$4" />
++          <Divider marginVertical="$4" backgroundColor={colors.border} />
+ 
+           <Button size="lg" action="negative" onPress={handleLogout} marginTop="$4">
+             <ButtonText>Catch you later! 🛹</ButtonText>
 diff --git a/model.patch b/model.patch
-index 6058a90..e69de29 100644
+index 6992a03..e69de29 100644
 --- a/model.patch
 +++ b/model.patch
-@@ -1,164 +0,0 @@
--diff --git a/frontend/README.md b/frontend/README.md
--index 48dd63f..f6387a2 100644
----- a/frontend/README.md
--+++ b/frontend/README.md
--@@ -1,50 +1,130 @@
---# Welcome to your Expo app 👋
--+# UNPAIR - Sneaker Marketplace App
+@@ -1,266 +0,0 @@
+-diff --git a/model.patch b/model.patch
+-index 6058a90..e69de29 100644
+---- a/model.patch
+-+++ b/model.patch
+-@@ -1,164 +0,0 @@
+--diff --git a/frontend/README.md b/frontend/README.md
+--index 48dd63f..f6387a2 100644
+----- a/frontend/README.md
+--+++ b/frontend/README.md
+--@@ -1,50 +1,130 @@
+---# Welcome to your Expo app 👋
+--+# UNPAIR - Sneaker Marketplace App
+-- 
+---This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+--+**UNPAIR** is a mobile-first marketplace for buying and selling single sneakers (left or right foot). Built with Expo (React Native), Firebase, and Gluestack-UI.
+-- 
+---## Get started
+--+## Features
+-- 
+---1. Install dependencies
+--+- **Firebase Authentication**: Email/password login and registration
+--+- **Sell Sneakers**: Post individual left or right sneakers with photos
+--+- **Search Requests**: Post what you're looking for
+--+- **Real-time Notifications**: Get notified when matches are found
+--+- **Profile Management**: View your listings and requests
+--+- **Cross-Platform**: Runs on iOS, Android, and Web
+-- 
+---   ```bash
+---   npm install
+---   ```
+--+## Tech Stack
+-- 
+---2. Start the app
+--+- **Frontend**: Expo (React Native), React Navigation, Gluestack-UI
+--+- **Backend**: Firebase (Auth, Firestore, Storage)
+--+- **State Management**: React Context API
+--+- **Image Handling**: expo-image-picker, Firebase Storage
+-- 
+---   ```bash
+---   npx expo start
+---   ```
+--+## Quick Start
+-- 
+---In the output, you'll find options to open the app in a
+--+### 1. Install Dependencies
+-- 
+---- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
+---- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+---- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
+---- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+--+```bash
+--+cd frontend
+--+yarn install
+--+```
+--+
+--+### 2. Start the App
+--+
+--+```bash
+--+yarn start
+--+```
+-- 
+---You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+--+This will start the Expo development server with a QR code.
+-- 
+---## Get a fresh project
+--+### 3. Run on Device/Simulator
+-- 
+---When you're ready, run:
+--+**Mobile (Expo Go):**
+--+- Install "Expo Go" app on iOS or Android
+--+- Scan the QR code to open the app
+-- 
+--+**Web:**
+-- ```bash
+---npm run reset-project
+--+yarn web
+-- ```
+-- 
+---This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+--+## Project Structure
+-- 
+---## Learn more
+--+```
+--+frontend/
+--+├── app/
+--+│   ├── (auth)/           # Login & Register
+--+│   ├── (tabs)/           # Home, Sell, Search, Profile
+--+│   ├── config/           # Firebase configuration
+--+│   └── contexts/         # Auth context
+--+```
+-- 
+---To learn more about developing your project with Expo, look at the following resources:
+--+## Firebase Setup
+--+
+--+Firebase credentials are pre-configured. For production, update the Firebase rules:
+--+
+--+### Firestore Rules
+--+```javascript
+--+rules_version = '2';
+--+service cloud.firestore {
+--+  match /databases/{database}/documents {
+--+    match /sneakers/{sneakerId} {
+--+      allow read: if true;
+--+      allow create: if request.auth != null;
+--+      allow delete: if request.auth.uid == resource.data.userId;
+--+    }
+--+    match /searchRequests/{requestId} {
+--+      allow read: if true;
+--+      allow create: if request.auth != null;
+--+      allow delete: if request.auth.uid == resource.data.userId;
+--+    }
+--+  }
+--+}
+--+```
+-- 
+---- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
+---- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+--+### Storage Rules
+--+```javascript
+--+rules_version = '2';
+--+service firebase.storage {
+--+  match /b/{bucket}/o {
+--+    match /sneakers/{userId}/{allPaths=**} {
+--+      allow read: if true;
+--+      allow write: if request.auth.uid == userId;
+--+    }
+--+  }
+--+}
+--+```
+-- 
+---## Join the community
+--+## Features
+--+
+--+### Authentication
+--+- Email/password registration and login
+--+- Persistent sessions
+--+
+--+### Sell Screen
+--+- Choose left/right foot
+--+- Add photos from camera or gallery
+--+- Automatic buyer matching
+--+
+--+### Search Screen
+--+- Post what you're looking for
+--+- Get notified when matches appear
+--+
+--+### Home Feed
+--+- Browse all available sneakers
+--+- Pull-to-refresh
+--+
+--+### Profile
+--+- Manage your listings
+--+- Manage search requests
+--+- Logout
+--+
+--+## Troubleshooting
+--+
+--+```bash
+--+# Clear cache
+--+rm -rf .expo .metro-cache
+--+yarn start --clear
+--+```
+-- 
+---Join our community of developers creating universal apps.
+--+## License
+-- 
+---- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
+---- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+--+MIT
+-diff --git a/test_result.md b/test_result.md
+-index e045ee8..fdc1040 100644
+---- a/test_result.md
+-+++ b/test_result.md
+-@@ -120,15 +120,18 @@ backend:
+- frontend:
+-   - task: "Authentication flow (Login/Register)"
+-     implemented: true
+--    working: "NA"
+-+    working: false
+-     file: "frontend/app/(auth)/login.tsx, frontend/app/(auth)/register.tsx"
+--    stuck_count: 0
+-+    stuck_count: 1
+-     priority: "high"
+--    needs_retesting: true
+-+    needs_retesting: false
+-     status_history:
+-       - working: "NA"
+-         agent: "main"
+-         comment: "Login and Register screens implemented with Firebase Auth. Email/password authentication with form validation. Protected routes setup. Needs user or automated testing."
+-+      - working: false
+-+        agent: "testing"
+-+        comment: "CRITICAL: Authentication is failing. UI renders correctly and forms can be filled, but Firebase authentication returns 400 errors. Registration attempts fail to redirect to home screen. This blocks all other functionality testing. Issue appears to be Firebase configuration or network connectivity."
+-   
+-   - task: "Home screen with sneaker listings"
+-     implemented: true
+-@@ -141,6 +144,9 @@ frontend:
+-       - working: "NA"
+-         agent: "main"
+-         comment: "Home feed displays all sneakers with real-time Firestore listeners. Shows sneaker image, model, brand, size, condition, seller info. Pull-to-refresh implemented. Needs testing."
+-+      - working: "NA"
+-+        agent: "testing"
+-+        comment: "Cannot test home screen functionality due to authentication failure. Protected routes prevent access without login. Code implementation appears correct based on review."
+-   
+-   - task: "Sell screen with image upload"
+-     implemented: true
+-@@ -153,6 +159,9 @@ frontend:
+-       - working: "NA"
+-         agent: "main"
+-         comment: "Sell form with left/right foot selection, model, brand, size, condition inputs. Camera and gallery image picker. Firebase Storage upload. Automatic buyer matching. Needs testing."
+-+      - working: "NA"
+-+        agent: "testing"
+-+        comment: "Cannot test sell screen functionality due to authentication failure. Protected routes prevent access without login. Code implementation appears correct based on review."
+-   
+-   - task: "Search request screen"
+-     implemented: true
+-@@ -165,6 +174,9 @@ frontend:
+-       - working: "NA"
+-         agent: "main"
+-         comment: "Search request form to post what user is looking for. Automatic matching with existing sneakers. Notification creation for sellers. Needs testing."
+-+      - working: "NA"
+-+        agent: "testing"
+-+        comment: "Cannot test search screen functionality due to authentication failure. Protected routes prevent access without login. Code implementation appears correct based on review."
+-   
+-   - task: "Profile screen with listings management"
+-     implemented: true
+-@@ -177,6 +189,9 @@ frontend:
+-       - working: "NA"
+-         agent: "main"
+-         comment: "Profile displays user info, my listings, my requests. Delete functionality for listings and requests. Dark mode toggle. Logout. Needs testing."
+-+      - working: "NA"
+-+        agent: "testing"
+-+        comment: "Cannot test profile screen functionality due to authentication failure. Protected routes prevent access without login. Code implementation appears correct based on review."
+-   
+-   - task: "Bottom tab navigation"
+-     implemented: true
+-@@ -201,6 +216,9 @@ frontend:
+-       - working: "NA"
+-         agent: "main"
+-         comment: "Matching logic implemented. When sneaker posted, checks for matching search requests. When search request posted, checks for matching sneakers. Creates Firestore notifications. Needs testing to verify matching works correctly."
+-+      - working: "NA"
+-+        agent: "testing"
+-+        comment: "Cannot test notification matching system due to authentication failure. System requires authenticated users to post sneakers and search requests. Code implementation appears correct based on review."
 - 
---This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
--+**UNPAIR** is a mobile-first marketplace for buying and selling single sneakers (left or right foot). Built with Expo (React Native), Firebase, and Gluestack-UI.
+- metadata:
+-   created_by: "main_agent"
+-@@ -211,13 +229,13 @@ metadata:
+- test_plan:
+-   current_focus:
+-     - "Authentication flow (Login/Register)"
+--    - "Sell screen with image upload"
+--    - "Home screen with sneaker listings"
+--    - "Notification matching system"
+--  stuck_tasks: []
+-+  stuck_tasks:
+-+    - "Authentication flow (Login/Register)"
+-   test_all: false
+-   test_priority: "high_first"
 - 
---## Get started
--+## Features
-- 
---1. Install dependencies
--+- **Firebase Authentication**: Email/password login and registration
--+- **Sell Sneakers**: Post individual left or right sneakers with photos
--+- **Search Requests**: Post what you're looking for
--+- **Real-time Notifications**: Get notified when matches are found
--+- **Profile Management**: View your listings and requests
--+- **Cross-Platform**: Runs on iOS, Android, and Web
-- 
---   ```bash
---   npm install
---   ```
--+## Tech Stack
-- 
---2. Start the app
--+- **Frontend**: Expo (React Native), React Navigation, Gluestack-UI
--+- **Backend**: Firebase (Auth, Firestore, Storage)
--+- **State Management**: React Context API
--+- **Image Handling**: expo-image-picker, Firebase Storage
-- 
---   ```bash
---   npx expo start
---   ```
--+## Quick Start
-- 
---In the output, you'll find options to open the app in a
--+### 1. Install Dependencies
-- 
---- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
---- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
---- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
---- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
--+```bash
--+cd frontend
--+yarn install
--+```
--+
--+### 2. Start the App
--+
--+```bash
--+yarn start
--+```
-- 
---You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
--+This will start the Expo development server with a QR code.
-- 
---## Get a fresh project
--+### 3. Run on Device/Simulator
-- 
---When you're ready, run:
--+**Mobile (Expo Go):**
--+- Install "Expo Go" app on iOS or Android
--+- Scan the QR code to open the app
-- 
--+**Web:**
-- ```bash
---npm run reset-project
--+yarn web
-- ```
-- 
---This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
--+## Project Structure
-- 
---## Learn more
--+```
--+frontend/
--+├── app/
--+│   ├── (auth)/           # Login & Register
--+│   ├── (tabs)/           # Home, Sell, Search, Profile
--+│   ├── config/           # Firebase configuration
--+│   └── contexts/         # Auth context
--+```
-- 
---To learn more about developing your project with Expo, look at the following resources:
--+## Firebase Setup
--+
--+Firebase credentials are pre-configured. For production, update the Firebase rules:
--+
--+### Firestore Rules
--+```javascript
--+rules_version = '2';
--+service cloud.firestore {
--+  match /databases/{database}/documents {
--+    match /sneakers/{sneakerId} {
--+      allow read: if true;
--+      allow create: if request.auth != null;
--+      allow delete: if request.auth.uid == resource.data.userId;
--+    }
--+    match /searchRequests/{requestId} {
--+      allow read: if true;
--+      allow create: if request.auth != null;
--+      allow delete: if request.auth.uid == resource.data.userId;
--+    }
--+  }
--+}
--+```
-- 
---- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
---- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
--+### Storage Rules
--+```javascript
--+rules_version = '2';
--+service firebase.storage {
--+  match /b/{bucket}/o {
--+    match /sneakers/{userId}/{allPaths=**} {
--+      allow read: if true;
--+      allow write: if request.auth.uid == userId;
--+    }
--+  }
--+}
--+```
-- 
---## Join the community
--+## Features
--+
--+### Authentication
--+- Email/password registration and login
--+- Persistent sessions
--+
--+### Sell Screen
--+- Choose left/right foot
--+- Add photos from camera or gallery
--+- Automatic buyer matching
--+
--+### Search Screen
--+- Post what you're looking for
--+- Get notified when matches appear
--+
--+### Home Feed
--+- Browse all available sneakers
--+- Pull-to-refresh
--+
--+### Profile
--+- Manage your listings
--+- Manage search requests
--+- Logout
--+
--+## Troubleshooting
--+
--+```bash
--+# Clear cache
--+rm -rf .expo .metro-cache
--+yarn start --clear
--+```
-- 
---Join our community of developers creating universal apps.
--+## License
-- 
---- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
---- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
--+MIT
-diff --git a/test_result.md b/test_result.md
-index e045ee8..fdc1040 100644
---- a/test_result.md
-+++ b/test_result.md
-@@ -120,15 +120,18 @@ backend:
- frontend:
-   - task: "Authentication flow (Login/Register)"
-     implemented: true
--    working: "NA"
-+    working: false
-     file: "frontend/app/(auth)/login.tsx, frontend/app/(auth)/register.tsx"
--    stuck_count: 0
-+    stuck_count: 1
-     priority: "high"
--    needs_retesting: true
-+    needs_retesting: false
-     status_history:
-       - working: "NA"
-         agent: "main"
-         comment: "Login and Register screens implemented with Firebase Auth. Email/password authentication with form validation. Protected routes setup. Needs user or automated testing."
-+      - working: false
-+        agent: "testing"
-+        comment: "CRITICAL: Authentication is failing. UI renders correctly and forms can be filled, but Firebase authentication returns 400 errors. Registration attempts fail to redirect to home screen. This blocks all other functionality testing. Issue appears to be Firebase configuration or network connectivity."
-   
-   - task: "Home screen with sneaker listings"
-     implemented: true
-@@ -141,6 +144,9 @@ frontend:
-       - working: "NA"
-         agent: "main"
-         comment: "Home feed displays all sneakers with real-time Firestore listeners. Shows sneaker image, model, brand, size, condition, seller info. Pull-to-refresh implemented. Needs testing."
-+      - working: "NA"
-+        agent: "testing"
-+        comment: "Cannot test home screen functionality due to authentication failure. Protected routes prevent access without login. Code implementation appears correct based on review."
-   
-   - task: "Sell screen with image upload"
-     implemented: true
-@@ -153,6 +159,9 @@ frontend:
-       - working: "NA"
-         agent: "main"
-         comment: "Sell form with left/right foot selection, model, brand, size, condition inputs. Camera and gallery image picker. Firebase Storage upload. Automatic buyer matching. Needs testing."
-+      - working: "NA"
-+        agent: "testing"
-+        comment: "Cannot test sell screen functionality due to authentication failure. Protected routes prevent access without login. Code implementation appears correct based on review."
-   
-   - task: "Search request screen"
-     implemented: true
-@@ -165,6 +174,9 @@ frontend:
-       - working: "NA"
-         agent: "main"
-         comment: "Search request form to post what user is looking for. Automatic matching with existing sneakers. Notification creation for sellers. Needs testing."
-+      - working: "NA"
-+        agent: "testing"
-+        comment: "Cannot test search screen functionality due to authentication failure. Protected routes prevent access without login. Code implementation appears correct based on review."
-   
-   - task: "Profile screen with listings management"
-     implemented: true
-@@ -177,6 +189,9 @@ frontend:
-       - working: "NA"
-         agent: "main"
-         comment: "Profile displays user info, my listings, my requests. Delete functionality for listings and requests. Dark mode toggle. Logout. Needs testing."
-+      - working: "NA"
-+        agent: "testing"
-+        comment: "Cannot test profile screen functionality due to authentication failure. Protected routes prevent access without login. Code implementation appears correct based on review."
-   
-   - task: "Bottom tab navigation"
-     implemented: true
-@@ -201,6 +216,9 @@ frontend:
-       - working: "NA"
-         agent: "main"
-         comment: "Matching logic implemented. When sneaker posted, checks for matching search requests. When search request posted, checks for matching sneakers. Creates Firestore notifications. Needs testing to verify matching works correctly."
-+      - working: "NA"
-+        agent: "testing"
-+        comment: "Cannot test notification matching system due to authentication failure. System requires authenticated users to post sneakers and search requests. Code implementation appears correct based on review."
- 
- metadata:
-   created_by: "main_agent"
-@@ -211,13 +229,13 @@ metadata:
- test_plan:
-   current_focus:
-     - "Authentication flow (Login/Register)"
--    - "Sell screen with image upload"
--    - "Home screen with sneaker listings"
--    - "Notification matching system"
--  stuck_tasks: []
-+  stuck_tasks:
-+    - "Authentication flow (Login/Register)"
-   test_all: false
-   test_priority: "high_first"
- 
- agent_communication:
-   - agent: "main"
--    message: "UNPAIR app implementation complete. All core features implemented with Firebase backend. Login screen is rendering correctly. Ready for testing. User requested automated testing. Note: Firebase rules need to be configured in Firebase console for full functionality."
-\ No newline at end of file
-+    message: "UNPAIR app implementation complete. All core features implemented with Firebase backend. Login screen is rendering correctly. Ready for testing. User requested automated testing. Note: Firebase rules need to be configured in Firebase console for full functionality."
-+  - agent: "testing"
-+    message: "CRITICAL ISSUE FOUND: Firebase authentication is completely broken. App UI renders correctly and forms work, but all authentication attempts fail with 400 errors from Firebase Identity Toolkit. This blocks testing of all main app features since they require authentication. The issue appears to be either: 1) Firebase project configuration problems, 2) API key issues, 3) Firebase Auth rules not properly set up, or 4) Network connectivity issues with Firebase services. Main agent needs to investigate Firebase configuration urgently."
-\ No newline at end of file
+- agent_communication:
+-   - agent: "main"
+--    message: "UNPAIR app implementation complete. All core features implemented with Firebase backend. Login screen is rendering correctly. Ready for testing. User requested automated testing. Note: Firebase rules need to be configured in Firebase console for full functionality."
+-\ No newline at end of file
+-+    message: "UNPAIR app implementation complete. All core features implemented with Firebase backend. Login screen is rendering correctly. Ready for testing. User requested automated testing. Note: Firebase rules need to be configured in Firebase console for full functionality."
+-+  - agent: "testing"
+-+    message: "CRITICAL ISSUE FOUND: Firebase authentication is completely broken. App UI renders correctly and forms work, but all authentication attempts fail with 400 errors from Firebase Identity Toolkit. This blocks testing of all main app features since they require authentication. The issue appears to be either: 1) Firebase project configuration problems, 2) API key issues, 3) Firebase Auth rules not properly set up, or 4) Network connectivity issues with Firebase services. Main agent needs to investigate Firebase configuration urgently."
+-\ No newline at end of file
