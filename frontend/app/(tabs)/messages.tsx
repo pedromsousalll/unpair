@@ -10,7 +10,7 @@ import {
   AvatarImage,
   Spinner,
 } from '@gluestack-ui/themed';
-import { collection, query, where, onSnapshot, orderBy, or } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
