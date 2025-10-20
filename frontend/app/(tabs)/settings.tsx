@@ -85,12 +85,12 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Box padding="$4">
+        <Box padding="$4" backgroundColor={colors.background}>
           {/* Profile Section */}
           <VStack space="lg" alignItems="center" marginBottom="$6">
             <Pressable onPress={handlePhotoUpload} disabled={uploading}>
               <Box position="relative">
-                <Avatar size="2xl">
+                <Avatar size="2xl" backgroundColor={colors.surface}>
                   {user?.photoURL ? (
                     <AvatarImage source={{ uri: user.photoURL }} />
                   ) : (
@@ -119,7 +119,7 @@ export default function SettingsScreen() {
             </VStack>
           </VStack>
 
-          <Divider marginVertical="$4" />
+          <Divider marginVertical="$4" backgroundColor={colors.border} />
 
           {/* Theme Settings */}
           <VStack space="md" marginBottom="$6">
@@ -133,8 +133,9 @@ export default function SettingsScreen() {
                 <Text color={colors.text}>Dark Mode</Text>
               </HStack>
               <Switch
-                value={isDark}
+                value={themeMode === 'dark'}
                 onValueChange={(value) => setThemeMode(value ? 'dark' : 'light')}
+                disabled={themeMode === 'system'}
               />
             </HStack>
 
@@ -145,12 +146,12 @@ export default function SettingsScreen() {
               </HStack>
               <Switch
                 value={themeMode === 'system'}
-                onValueChange={(value) => setThemeMode(value ? 'system' : 'light')}
+                onValueChange={(value) => setThemeMode(value ? 'system' : (isDark ? 'dark' : 'light'))}
               />
             </HStack>
           </VStack>
 
-          <Divider marginVertical="$4" />
+          <Divider marginVertical="$4" backgroundColor={colors.border} />
 
           {/* Account Settings */}
           <VStack space="md" marginBottom="$6">
@@ -189,7 +190,7 @@ export default function SettingsScreen() {
             </Pressable>
           </VStack>
 
-          <Divider marginVertical="$4" />
+          <Divider marginVertical="$4" backgroundColor={colors.border} />
 
           <Button size="lg" action="negative" onPress={handleLogout} marginTop="$4">
             <ButtonText>Catch you later! 🛹</ButtonText>
