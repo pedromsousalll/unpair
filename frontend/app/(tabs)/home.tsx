@@ -13,7 +13,7 @@ import {
   Spinner,
 } from '@gluestack-ui/themed';
 import { collection, query, orderBy, onSnapshot, doc, getDoc } from 'firebase/firestore';
-import { db } from './config/firebase';
+import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
