@@ -120,15 +120,18 @@ backend:
 frontend:
   - task: "Authentication flow (Login/Register)"
     implemented: true
-    working: "NA"
+    working: false
     file: "frontend/app/(auth)/login.tsx, frontend/app/(auth)/register.tsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Login and Register screens implemented with Firebase Auth. Email/password authentication with form validation. Protected routes setup. Needs user or automated testing."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL: Authentication is failing. UI renders correctly and forms can be filled, but Firebase authentication returns 400 errors. Registration attempts fail to redirect to home screen. This blocks all other functionality testing. Issue appears to be Firebase configuration or network connectivity."
   
   - task: "Home screen with sneaker listings"
     implemented: true
@@ -141,6 +144,9 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "Home feed displays all sneakers with real-time Firestore listeners. Shows sneaker image, model, brand, size, condition, seller info. Pull-to-refresh implemented. Needs testing."
+      - working: "NA"
+        agent: "testing"
+        comment: "Cannot test home screen functionality due to authentication failure. Protected routes prevent access without login. Code implementation appears correct based on review."
   
   - task: "Sell screen with image upload"
     implemented: true
@@ -153,6 +159,9 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "Sell form with left/right foot selection, model, brand, size, condition inputs. Camera and gallery image picker. Firebase Storage upload. Automatic buyer matching. Needs testing."
+      - working: "NA"
+        agent: "testing"
+        comment: "Cannot test sell screen functionality due to authentication failure. Protected routes prevent access without login. Code implementation appears correct based on review."
   
   - task: "Search request screen"
     implemented: true
@@ -165,6 +174,9 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "Search request form to post what user is looking for. Automatic matching with existing sneakers. Notification creation for sellers. Needs testing."
+      - working: "NA"
+        agent: "testing"
+        comment: "Cannot test search screen functionality due to authentication failure. Protected routes prevent access without login. Code implementation appears correct based on review."
   
   - task: "Profile screen with listings management"
     implemented: true
@@ -177,6 +189,9 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "Profile displays user info, my listings, my requests. Delete functionality for listings and requests. Dark mode toggle. Logout. Needs testing."
+      - working: "NA"
+        agent: "testing"
+        comment: "Cannot test profile screen functionality due to authentication failure. Protected routes prevent access without login. Code implementation appears correct based on review."
   
   - task: "Bottom tab navigation"
     implemented: true
@@ -201,6 +216,9 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "Matching logic implemented. When sneaker posted, checks for matching search requests. When search request posted, checks for matching sneakers. Creates Firestore notifications. Needs testing to verify matching works correctly."
+      - working: "NA"
+        agent: "testing"
+        comment: "Cannot test notification matching system due to authentication failure. System requires authenticated users to post sneakers and search requests. Code implementation appears correct based on review."
 
 metadata:
   created_by: "main_agent"
@@ -211,13 +229,13 @@ metadata:
 test_plan:
   current_focus:
     - "Authentication flow (Login/Register)"
-    - "Sell screen with image upload"
-    - "Home screen with sneaker listings"
-    - "Notification matching system"
-  stuck_tasks: []
+  stuck_tasks:
+    - "Authentication flow (Login/Register)"
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
   - agent: "main"
     message: "UNPAIR app implementation complete. All core features implemented with Firebase backend. Login screen is rendering correctly. Ready for testing. User requested automated testing. Note: Firebase rules need to be configured in Firebase console for full functionality."
+  - agent: "testing"
+    message: "CRITICAL ISSUE FOUND: Firebase authentication is completely broken. App UI renders correctly and forms work, but all authentication attempts fail with 400 errors from Firebase Identity Toolkit. This blocks testing of all main app features since they require authentication. The issue appears to be either: 1) Firebase project configuration problems, 2) API key issues, 3) Firebase Auth rules not properly set up, or 4) Network connectivity issues with Firebase services. Main agent needs to investigate Firebase configuration urgently."
