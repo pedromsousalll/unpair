@@ -124,6 +124,27 @@ export default function RegisterScreen() {
                 <ButtonText>{loading ? 'Creating account...' : 'Register'}</ButtonText>
               </Button>
 
+              <HStack space="sm" alignItems="center" marginVertical="$4">
+                <Box flex={1} height={1} backgroundColor="$borderLight300" />
+                <Text size="sm" color="$textLight500">
+                  ou
+                </Text>
+                <Box flex={1} height={1} backgroundColor="$borderLight300" />
+              </HStack>
+
+              <Button
+                size="lg"
+                onPress={handleGoogleSignIn}
+                isDisabled={loading}
+                variant="outline"
+                borderColor="$borderLight300"
+              >
+                <HStack space="sm" alignItems="center">
+                  <Text fontSize="$lg">🔵</Text>
+                  <ButtonText>Continuar com Google</ButtonText>
+                </HStack>
+              </Button>
+
               <Pressable onPress={() => router.push('/(auth)/login')}>
                 <Text textAlign="center" color="$primary500" marginTop="$4">
                   Already have an account? Login
