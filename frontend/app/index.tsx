@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useRouter, useSegments } from 'expo-router';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from './contexts/AuthContext';
 import { View, ActivityIndicator } from 'react-native';
 
 export default function Index() {
