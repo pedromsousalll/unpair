@@ -101,6 +101,27 @@ export default function LoginScreen() {
                 <ButtonText>{loading ? 'Logging in...' : 'Login'}</ButtonText>
               </Button>
 
+              <HStack space="sm" alignItems="center" marginVertical="$4">
+                <Box flex={1} height={1} backgroundColor="$borderLight300" />
+                <Text size="sm" color="$textLight500">
+                  ou
+                </Text>
+                <Box flex={1} height={1} backgroundColor="$borderLight300" />
+              </HStack>
+
+              <Button
+                size="lg"
+                onPress={handleGoogleSignIn}
+                isDisabled={loading}
+                variant="outline"
+                borderColor="$borderLight300"
+              >
+                <HStack space="sm" alignItems="center">
+                  <Text fontSize="$lg">🔵</Text>
+                  <ButtonText>Continuar com Google</ButtonText>
+                </HStack>
+              </Button>
+
               <Pressable onPress={() => router.push('/(auth)/register')}>
                 <Text textAlign="center" color="$primary500" marginTop="$4">
                   Don't have an account? Register
