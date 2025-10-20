@@ -22,7 +22,7 @@ export default function RegisterScreen() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { signUp } = useAuth();
+  const { signUp, signInWithGoogle } = useAuth();
 
   const handleRegister = async () => {
     setError('');
@@ -44,6 +44,20 @@ export default function RegisterScreen() {
       router.replace('/(tabs)/home');
     } catch (err: any) {
       setError(err.message || 'Failed to create account');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setLoading(true);
+
+    try {
+      await signInWithGoogle();
+      // Navigation will happen automatically via auth state change
+    } catch (err: any) {
+      setError(err.message || 'Failed to sign in with Google');
     } finally {
       setLoading(false);
     }
