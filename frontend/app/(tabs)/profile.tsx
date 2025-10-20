@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, StyleSheet, Pressable, Alert } from 'react-native';
+import { ScrollView, StyleSheet, Pressable, Alert, View as RNView } from 'react-native';
 import {
   Box,
   VStack,
@@ -8,20 +8,25 @@ import {
   Text,
   Avatar,
   AvatarFallbackText,
+  AvatarImage,
   Button,
   ButtonText,
   Card,
   Image,
   Divider,
-  Switch,
   Spinner,
 } from '@gluestack-ui/themed';
 import { collection, query, where, onSnapshot, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useColorScheme } from 'react-native';
+import { useRouter } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { updateProfile } from 'firebase/auth';
+import { storage } from '../config/firebase';
 
 interface Sneaker {
   id: string;
@@ -45,18 +50,14 @@ export default function ProfileScreen() {
   const [myListings, setMyListings] = useState<Sneaker[]>([]);
   const [myRequests, setMyRequests] = useState<SearchRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const { user, signOut } = useAuth();
-  const colorScheme = useColorScheme();
-
-  useEffect(() => {
-    setIsDarkMode(colorScheme === 'dark');
-  }, [colorScheme]);
+  const { colors } = useTheme();
+  const router = useRouter();
 
   useEffect(() => {
     if (!user) return;
 
-    // Listen to user's sneaker listings
     const sneakersQuery = query(
       collection(db, 'sneakers'),
       where('userId', '==', user.uid)
@@ -71,7 +72,6 @@ export default function ProfileScreen() {
       setLoading(false);
     });
 
-    // Listen to user's search requests
     const requestsQuery = query(
       collection(db, 'searchRequests'),
       where('userId', '==', user.uid)
@@ -91,21 +91,57 @@ export default function ProfileScreen() {
     };
   }, [user]);
 
+  const handlePhotoUpload = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission needed', 'We need access to your photos! 📸');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.5,
+      });
+
+      if (!result.canceled && user) {
+        setUploading(true);
+        const response = await fetch(result.assets[0].uri);
+        const blob = await response.blob();
+        const filename = `profile/${user.uid}/${Date.now()}.jpg`;
+        const storageRef = ref(storage, filename);
+        await uploadBytes(storageRef, blob);
+        const photoURL = await getDownloadURL(storageRef);
+        
+        await updateProfile(user, { photoURL });
+        Alert.alert('Nice! 📸', 'Profile photo updated!');
+        setUploading(false);
+        // Force refresh
+        window.location.reload();
+      }
+    } catch (error: any) {
+      Alert.alert('Oops! 😅', error.message || 'Failed to upload photo');
+      setUploading(false);
+    }
+  };
+
   const handleDeleteListing = async (id: string) => {
     Alert.alert(
       'Delete Listing',
-      'Are you sure you want to delete this listing?',
+      'Remove this kick from the lineup?',
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: 'Nah', style: 'cancel' },
         {
-          text: 'Delete',
+          text: 'Yep',
           style: 'destructive',
           onPress: async () => {
             try {
               await deleteDoc(doc(db, 'sneakers', id));
-              Alert.alert('Success', 'Listing deleted');
+              Alert.alert('Done! 🗑️', 'Listing removed');
             } catch (err: any) {
-              Alert.alert('Error', err.message || 'Failed to delete listing');
+              Alert.alert('Error', err.message || 'Failed to delete');
             }
           },
         },
@@ -116,18 +152,18 @@ export default function ProfileScreen() {
   const handleDeleteRequest = async (id: string) => {
     Alert.alert(
       'Delete Request',
-      'Are you sure you want to delete this request?',
+      'Stop looking for this pair?',
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: 'Nah', style: 'cancel' },
         {
-          text: 'Delete',
+          text: 'Yep',
           style: 'destructive',
           onPress: async () => {
             try {
               await deleteDoc(doc(db, 'searchRequests', id));
-              Alert.alert('Success', 'Request deleted');
+              Alert.alert('Done! 🗑️', 'Request removed');
             } catch (err: any) {
-              Alert.alert('Error', err.message || 'Failed to delete request');
+              Alert.alert('Error', err.message || 'Failed to delete');
             }
           },
         },
@@ -135,58 +171,98 @@ export default function ProfileScreen() {
     );
   };
 
-  const handleLogout = async () => {
-    Alert.alert('Logout', 'Are you sure you want to logout?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Logout',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await signOut();
-          } catch (err: any) {
-            Alert.alert('Error', err.message || 'Failed to logout');
-          }
+  const handleLogout = () => {
+    Alert.alert(
+      'Peace out! ✌️',
+      'Later, skater!',
+      [
+        { text: 'Stay', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await signOut();
+            } catch (err: any) {
+              Alert.alert('Error', err.message || 'Failed to logout');
+            }
+          },
         },
-      },
-    ]);
+      ]
+    );
   };
 
   if (loading) {
     return (
-      <Box flex={1} justifyContent="center" alignItems="center">
-        <Spinner size="large" />
+      <Box flex={1} justifyContent="center" alignItems="center" backgroundColor={colors.background}>
+        <Spinner size="large" color={colors.primary} />
       </Box>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Box padding="$4">
-          {/* Profile Header */}
           <VStack space="lg" alignItems="center" marginBottom="$6">
-            <Avatar size="xl">
-              <AvatarFallbackText>{user?.email || 'User'}</AvatarFallbackText>
-            </Avatar>
+            <Pressable onPress={handlePhotoUpload} disabled={uploading}>
+              <Box position="relative">
+                <Avatar size="2xl">
+                  {user?.photoURL ? (
+                    <AvatarImage source={{ uri: user.photoURL }} />
+                  ) : (
+                    <AvatarFallbackText>{user?.email || 'User'}</AvatarFallbackText>
+                  )}
+                </Avatar>
+                <RNView
+                  style={[
+                    styles.cameraButton,
+                    { backgroundColor: colors.primary },
+                  ]}
+                >
+                  <Ionicons name="camera" size={16} color="#FFFFFF" />
+                </RNView>
+              </Box>
+            </Pressable>
+            {uploading && (
+              <Text size="sm" color={colors.textSecondary}>Uploading... 📤</Text>
+            )}
             <VStack space="xs" alignItems="center">
-              <Heading size="lg">{user?.email?.split('@')[0]}</Heading>
-              <Text size="sm" color="$textLight500">
+              <Heading size="lg" color={colors.text}>
+                {user?.displayName || user?.email?.split('@')[0]}
+              </Heading>
+              <Text size="sm" color={colors.textSecondary}>
                 {user?.email}
               </Text>
             </VStack>
           </VStack>
 
+          <Pressable onPress={() => router.push('/(tabs)/settings')}>
+            <HStack 
+              padding="$3" 
+              backgroundColor={colors.surface}
+              borderRadius="$lg"
+              justifyContent="space-between"
+              alignItems="center"
+              marginBottom="$6"
+            >
+              <HStack space="sm" alignItems="center">
+                <Ionicons name="settings" size={20} color={colors.text} />
+                <Text color={colors.text} fontWeight="$medium">Settings ⚙️</Text>
+              </HStack>
+              <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+            </HStack>
+          </Pressable>
+
           <Divider marginVertical="$4" />
 
-          {/* My Listings Section */}
           <VStack space="md" marginBottom="$6">
-            <Heading size="md">My Listings</Heading>
+            <Heading size="md" color={colors.text}>My Kicks 👟</Heading>
             {myListings.length === 0 ? (
-              <Text color="$textLight500">No listings yet</Text>
+              <Text color={colors.textSecondary}>No listings yet. Drop some!</Text>
             ) : (
               myListings.map((listing) => (
-                <Card key={listing.id} padding="$3">
+                <Card key={listing.id} padding="$3" backgroundColor={colors.card}>
                   <HStack space="md" alignItems="center">
                     <Image
                       source={{ uri: listing.imageUrl }}
@@ -196,13 +272,13 @@ export default function ProfileScreen() {
                       borderRadius={6}
                     />
                     <VStack flex={1} space="xs">
-                      <Text fontWeight="$bold">{listing.model}</Text>
-                      <Text size="sm" color="$textLight600">
+                      <Text fontWeight="$bold" color={colors.text}>{listing.model}</Text>
+                      <Text size="sm" color={colors.textSecondary}>
                         {listing.brand} - {listing.foot} foot - Size {listing.size}
                       </Text>
                     </VStack>
                     <Pressable onPress={() => handleDeleteListing(listing.id)}>
-                      <Ionicons name="trash-outline" size={24} color="#EF4444" />
+                      <Ionicons name="trash-outline" size={24} color={colors.error} />
                     </Pressable>
                   </HStack>
                 </Card>
@@ -212,25 +288,24 @@ export default function ProfileScreen() {
 
           <Divider marginVertical="$4" />
 
-          {/* My Requests Section */}
           <VStack space="md" marginBottom="$6">
-            <Heading size="md">My Requests</Heading>
+            <Heading size="md" color={colors.text}>Looking For 🔍</Heading>
             {myRequests.length === 0 ? (
-              <Text color="$textLight500">No requests yet</Text>
+              <Text color={colors.textSecondary}>No requests yet</Text>
             ) : (
               myRequests.map((request) => (
-                <Card key={request.id} padding="$3">
+                <Card key={request.id} padding="$3" backgroundColor={colors.card}>
                   <HStack space="md" alignItems="center">
                     <VStack flex={1} space="xs">
-                      <Text fontWeight="$bold">
-                        Looking for: {request.brand}{request.model ? ` ${request.model}` : ''}
+                      <Text fontWeight="$bold" color={colors.text}>
+                        {request.brand}{request.model ? ` ${request.model}` : ''}
                       </Text>
-                      <Text size="sm" color="$textLight600">
+                      <Text size="sm" color={colors.textSecondary}>
                         {request.foot} foot - Size {request.size}
                       </Text>
                     </VStack>
                     <Pressable onPress={() => handleDeleteRequest(request.id)}>
-                      <Ionicons name="trash-outline" size={24} color="#EF4444" />
+                      <Ionicons name="trash-outline" size={24} color={colors.error} />
                     </Pressable>
                   </HStack>
                 </Card>
@@ -240,28 +315,8 @@ export default function ProfileScreen() {
 
           <Divider marginVertical="$4" />
 
-          {/* Settings Section */}
-          <VStack space="md" marginBottom="$6">
-            <Heading size="md">Settings</Heading>
-            
-            <HStack justifyContent="space-between" alignItems="center" paddingVertical="$2">
-              <HStack space="sm" alignItems="center">
-                <Ionicons name="moon" size={20} color={isDarkMode ? '#007AFF' : '#666'} />
-                <Text>Dark Mode</Text>
-              </HStack>
-              <Switch
-                value={isDarkMode}
-                onValueChange={setIsDarkMode}
-                disabled
-              />
-            </HStack>
-            <Text size="xs" color="$textLight500" marginTop="-$2">
-              (Follows system preference)
-            </Text>
-          </VStack>
-
           <Button size="lg" action="negative" onPress={handleLogout}>
-            <ButtonText>Logout</ButtonText>
+            <ButtonText>Catch you later! 🛹</ButtonText>
           </Button>
         </Box>
       </ScrollView>
@@ -275,5 +330,12 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 40,
+  },
+  cameraButton: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    borderRadius: 20,
+    padding: 8,
   },
 });
