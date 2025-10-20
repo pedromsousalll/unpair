@@ -19,7 +19,7 @@ import {
 } from '@gluestack-ui/themed';
 import { collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebase';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SearchScreen() {

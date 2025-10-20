@@ -12,7 +12,7 @@ import {
   Pressable,
 } from '@gluestack-ui/themed';
 import { useRouter } from 'expo-router';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
