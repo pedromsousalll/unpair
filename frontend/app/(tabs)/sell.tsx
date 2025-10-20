@@ -24,6 +24,7 @@ import { collection, addDoc, serverTimestamp, query, where, getDocs } from 'fire
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -36,11 +37,12 @@ export default function SellScreen() {
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
+  const { colors } = useTheme();
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Please grant camera roll permissions');
+      Alert.alert('Hold up! ✋', 'We need photo access to show off your kicks!');
       return;
     }
 
@@ -59,7 +61,7 @@ export default function SellScreen() {
   const takePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Please grant camera permissions');
+      Alert.alert('Hold up! ✋', 'We need camera access!');
       return;
     }
 
@@ -76,14 +78,13 @@ export default function SellScreen() {
 
   const handleSubmit = async () => {
     if (!model || !brand || !size || !condition || !image) {
-      Alert.alert('Missing fields', 'Please fill all fields and add an image');
+      Alert.alert('Hold up! ✋', 'Fill in all fields and snap a pic!');
       return;
     }
 
     setLoading(true);
 
     try {
-      // Upload image to Firebase Storage
       const response = await fetch(image);
       const blob = await response.blob();
       const filename = `sneakers/${user?.uid}/${Date.now()}.jpg`;
@@ -91,7 +92,6 @@ export default function SellScreen() {
       await uploadBytes(storageRef, blob);
       const imageUrl = await getDownloadURL(storageRef);
 
-      // Add sneaker to Firestore
       const sneakerData = {
         userId: user?.uid,
         foot,
@@ -105,7 +105,6 @@ export default function SellScreen() {
 
       await addDoc(collection(db, 'sneakers'), sneakerData);
 
-      // Check for matching search requests
       const q = query(
         collection(db, 'searchRequests'),
         where('foot', '==', foot),
@@ -115,14 +114,13 @@ export default function SellScreen() {
 
       const querySnapshot = await getDocs(q);
       
-      // Create notifications for matching requests
       for (const docSnap of querySnapshot.docs) {
         const request = docSnap.data();
         if (request.userId !== user?.uid) {
           await addDoc(collection(db, 'notifications'), {
             userId: request.userId,
             type: 'match',
-            message: `A ${foot} foot ${brand} ${model} (Size ${size}) is now available!`,
+            message: `A ${foot} foot ${brand} ${model} (Size ${size}) just dropped!`,
             sneakerId: sneakerData.userId,
             read: false,
             createdAt: serverTimestamp(),
@@ -130,9 +128,8 @@ export default function SellScreen() {
         }
       }
 
-      Alert.alert('Success', 'Sneaker posted successfully!');
+      Alert.alert('Dropped! 🛹', 'Your kick is live!');
       
-      // Reset form
       setModel('');
       setBrand('');
       setSize('');
@@ -140,113 +137,118 @@ export default function SellScreen() {
       setImage(null);
       setFoot('left');
     } catch (err: any) {
-      Alert.alert('Error', err.message || 'Failed to post sneaker');
+      Alert.alert('Oops! 😅', err.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Box padding="$4">
-            <Heading size="xl" marginBottom="$6">
-              Sell a Sneaker
-            </Heading>
+          <Box padding="$4" alignItems="center">
+            <Box width="100%" maxWidth={400}>
+              <Heading size="xl" marginBottom="$2" color={colors.text} textAlign="center">
+                Drop your kicks! 🛹
+              </Heading>
+              <Text size="sm" color={colors.textSecondary} textAlign="center" marginBottom="$6">
+                List that lonely sneaker
+              </Text>
 
-            <VStack space="lg">
-              <VStack space="sm">
-                <Text fontWeight="$bold">Which foot?</Text>
-                <RadioGroup value={foot} onChange={(value) => setFoot(value as 'left' | 'right')}>
-                  <HStack space="xl">
-                    <Radio value="left">
-                      <RadioIndicator>
-                        <RadioIcon as={CircleIcon} />
-                      </RadioIndicator>
-                      <RadioLabel marginLeft="$2">Left</RadioLabel>
-                    </Radio>
-                    <Radio value="right">
-                      <RadioIndicator>
-                        <RadioIcon as={CircleIcon} />
-                      </RadioIndicator>
-                      <RadioLabel marginLeft="$2">Right</RadioLabel>
-                    </Radio>
-                  </HStack>
-                </RadioGroup>
+              <VStack space="lg">
+                <VStack space="sm">
+                  <Text fontWeight="$bold" color={colors.text}>Which foot?</Text>
+                  <RadioGroup value={foot} onChange={(value) => setFoot(value as 'left' | 'right')}>
+                    <HStack space="xl" justifyContent="center">
+                      <Radio value="left">
+                        <RadioIndicator>
+                          <RadioIcon as={CircleIcon} />
+                        </RadioIndicator>
+                        <RadioLabel marginLeft="$2">👈 Left</RadioLabel>
+                      </Radio>
+                      <Radio value="right">
+                        <RadioIndicator>
+                          <RadioIcon as={CircleIcon} />
+                        </RadioIndicator>
+                        <RadioLabel marginLeft="$2">👉 Right</RadioLabel>
+                      </Radio>
+                    </HStack>
+                  </RadioGroup>
+                </VStack>
+
+                <Input variant="outline">
+                  <InputField
+                    placeholder="Model (e.g., Air Jordan 1)"
+                    value={model}
+                    onChangeText={setModel}
+                  />
+                </Input>
+
+                <Input variant="outline">
+                  <InputField
+                    placeholder="Brand (e.g., Nike)"
+                    value={brand}
+                    onChangeText={setBrand}
+                  />
+                </Input>
+
+                <Input variant="outline">
+                  <InputField
+                    placeholder="Size (e.g., 10.5)"
+                    value={size}
+                    onChangeText={setSize}
+                    keyboardType="decimal-pad"
+                  />
+                </Input>
+
+                <Input variant="outline">
+                  <InputField
+                    placeholder="Condition (e.g., Brand New, Worn Once)"
+                    value={condition}
+                    onChangeText={setCondition}
+                  />
+                </Input>
+
+                <VStack space="sm">
+                  <Text fontWeight="$bold" color={colors.text}>Snap a pic 📸</Text>
+                  {image ? (
+                    <Pressable onPress={pickImage}>
+                      <Image
+                        source={{ uri: image }}
+                        alt="Sneaker"
+                        width="100%"
+                        height={200}
+                        borderRadius={8}
+                      />
+                    </Pressable>
+                  ) : (
+                    <HStack space="sm">
+                      <Button flex={1} onPress={pickImage} variant="outline">
+                        <Ionicons name="images" size={20} color={colors.primary} />
+                        <ButtonText marginLeft="$2">Gallery</ButtonText>
+                      </Button>
+                      <Button flex={1} onPress={takePhoto} variant="outline">
+                        <Ionicons name="camera" size={20} color={colors.primary} />
+                        <ButtonText marginLeft="$2">Camera</ButtonText>
+                      </Button>
+                    </HStack>
+                  )}
+                </VStack>
+
+                <Button
+                  size="lg"
+                  onPress={handleSubmit}
+                  isDisabled={loading}
+                  marginTop="$4"
+                >
+                  <ButtonText>{loading ? 'Posting...' : 'Drop it! 📥'}</ButtonText>
+                </Button>
               </VStack>
-
-              <Input variant="outline">
-                <InputField
-                  placeholder="Model (e.g., Air Jordan 1)"
-                  value={model}
-                  onChangeText={setModel}
-                />
-              </Input>
-
-              <Input variant="outline">
-                <InputField
-                  placeholder="Brand (e.g., Nike)"
-                  value={brand}
-                  onChangeText={setBrand}
-                />
-              </Input>
-
-              <Input variant="outline">
-                <InputField
-                  placeholder="Size (e.g., 10.5)"
-                  value={size}
-                  onChangeText={setSize}
-                  keyboardType="decimal-pad"
-                />
-              </Input>
-
-              <Input variant="outline">
-                <InputField
-                  placeholder="Condition (e.g., New, Used - Good)"
-                  value={condition}
-                  onChangeText={setCondition}
-                />
-              </Input>
-
-              <VStack space="sm">
-                <Text fontWeight="$bold">Sneaker Photo</Text>
-                {image ? (
-                  <Pressable onPress={pickImage}>
-                    <Image
-                      source={{ uri: image }}
-                      alt="Sneaker"
-                      width="100%"
-                      height={200}
-                      borderRadius={8}
-                    />
-                  </Pressable>
-                ) : (
-                  <HStack space="sm">
-                    <Button flex={1} onPress={pickImage} variant="outline">
-                      <Ionicons name="images" size={20} color="#007AFF" />
-                      <ButtonText marginLeft="$2">Gallery</ButtonText>
-                    </Button>
-                    <Button flex={1} onPress={takePhoto} variant="outline">
-                      <Ionicons name="camera" size={20} color="#007AFF" />
-                      <ButtonText marginLeft="$2">Camera</ButtonText>
-                    </Button>
-                  </HStack>
-                )}
-              </VStack>
-
-              <Button
-                size="lg"
-                onPress={handleSubmit}
-                isDisabled={loading}
-                marginTop="$4"
-              >
-                <ButtonText>{loading ? 'Posting...' : 'Post Sneaker'}</ButtonText>
-              </Button>
-            </VStack>
+            </Box>
           </Box>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -262,6 +264,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
+    flexGrow: 1,
     paddingBottom: 40,
   },
 });
