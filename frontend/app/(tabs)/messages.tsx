@@ -42,10 +42,7 @@ export default function MessagesScreen() {
 
     const q = query(
       collection(db, 'conversations'),
-      or(
-        where('participants', 'array-contains', user.uid)
-      ),
-      orderBy('lastMessageTime', 'desc')
+      where('participants', 'array-contains', user.uid)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -53,6 +50,14 @@ export default function MessagesScreen() {
         id: doc.id,
         ...doc.data(),
       })) as Conversation[];
+      
+      // Sort manually by lastMessageTime
+      convos.sort((a, b) => {
+        if (!a.lastMessageTime) return 1;
+        if (!b.lastMessageTime) return -1;
+        return b.lastMessageTime.toMillis() - a.lastMessageTime.toMillis();
+      });
+      
       setConversations(convos);
       setLoading(false);
     });
