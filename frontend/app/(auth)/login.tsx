@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 import {
   Box,
@@ -20,8 +20,16 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
   const router = useRouter();
-  const { signIn, signInWithGoogle } = useAuth();
+  const { signIn, signInWithGoogle, user } = useAuth();
+
+  // 🚀 Sempre que o user mudar, redireciona para home
+  useEffect(() => {
+    if (user) {
+      router.replace('/(tabs)/home');
+    }
+  }, [user]);
 
   const handleLogin = async () => {
     setError('');
@@ -29,7 +37,7 @@ export default function LoginScreen() {
 
     try {
       await signIn(email, password);
-      router.replace('/(tabs)/home');
+      // Redirect happens automatically via useEffect
     } catch (err: any) {
       setError(err.message || 'Failed to login');
     } finally {
@@ -43,7 +51,7 @@ export default function LoginScreen() {
 
     try {
       await signInWithGoogle();
-      // Navigation will happen automatically via auth state change
+      // Redirect happens automatically via useEffect
     } catch (err: any) {
       setError(err.message || 'Failed to sign in with Google');
     } finally {
