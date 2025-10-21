@@ -1,7 +1,8 @@
 {
-  "extends": "expo/tsconfig.base",
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "strict": true,
+    "types": ["node"],
+    "noImplicitAny": false,
     "paths": {
       "@/*": ["./*"]
     }
@@ -11,6 +12,6 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
-    "firebase.d.ts"   // 👈 adiciona aqui
+    "firebase.d.ts"
   ]
 }
