@@ -16,7 +16,7 @@ import {
   Divider,
   Spinner,
 } from '@gluestack-ui/themed';
-import { collection, query, where, onSnapshot, deleteDoc, doc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, deleteDoc, doc, setDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -95,7 +95,7 @@ export default function ProfileScreen() {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission needed', 'We need access to your photos! 📸');
+        Alert.alert('Permission needed', 'We need access to your photos!');
         return;
       }
 
@@ -116,13 +116,18 @@ export default function ProfileScreen() {
         const photoURL = await getDownloadURL(storageRef);
         
         await updateProfile(user, { photoURL });
-        Alert.alert('Nice! 📸', 'Profile photo updated!');
+        
+        await setDoc(doc(db, 'users', user.uid), {
+          email: user.email,
+          photoURL: photoURL,
+          uid: user.uid,
+        }, { merge: true });
+        
+        Alert.alert('Nice!', 'Profile photo updated!');
         setUploading(false);
-        // Force refresh
-        window.location.reload();
       }
     } catch (error: any) {
-      Alert.alert('Oops! 😅', error.message || 'Failed to upload photo');
+      Alert.alert('Oops!', error.message || 'Failed to upload photo');
       setUploading(false);
     }
   };
@@ -139,7 +144,7 @@ export default function ProfileScreen() {
           onPress: async () => {
             try {
               await deleteDoc(doc(db, 'sneakers', id));
-              Alert.alert('Done! 🗑️', 'Listing removed');
+              Alert.alert('Done!', 'Listing removed');
             } catch (err: any) {
               Alert.alert('Error', err.message || 'Failed to delete');
             }
@@ -161,7 +166,7 @@ export default function ProfileScreen() {
           onPress: async () => {
             try {
               await deleteDoc(doc(db, 'searchRequests', id));
-              Alert.alert('Done! 🗑️', 'Request removed');
+              Alert.alert('Done!', 'Request removed');
             } catch (err: any) {
               Alert.alert('Error', err.message || 'Failed to delete');
             }
@@ -173,7 +178,7 @@ export default function ProfileScreen() {
 
   const handleLogout = () => {
     Alert.alert(
-      'Peace out! ✌️',
+      'Peace out!',
       'Later, skater!',
       [
         { text: 'Stay', style: 'cancel' },
@@ -183,6 +188,7 @@ export default function ProfileScreen() {
           onPress: async () => {
             try {
               await signOut();
+              router.replace('/(auth)/login');
             } catch (err: any) {
               Alert.alert('Error', err.message || 'Failed to logout');
             }
@@ -207,7 +213,7 @@ export default function ProfileScreen() {
           <VStack space="lg" alignItems="center" marginBottom="$6">
             <Pressable onPress={handlePhotoUpload} disabled={uploading}>
               <Box position="relative">
-                <Avatar size="2xl">
+                <Avatar size="2xl" backgroundColor={colors.surface}>
                   {user?.photoURL ? (
                     <AvatarImage source={{ uri: user.photoURL }} />
                   ) : (
@@ -225,7 +231,7 @@ export default function ProfileScreen() {
               </Box>
             </Pressable>
             {uploading && (
-              <Text size="sm" color={colors.textSecondary}>Uploading... 📤</Text>
+              <Text size="sm" color={colors.textSecondary}>Uploading...</Text>
             )}
             <VStack space="xs" alignItems="center">
               <Heading size="lg" color={colors.text}>
@@ -241,14 +247,14 @@ export default function ProfileScreen() {
             <HStack 
               padding="$3" 
               backgroundColor={colors.surface}
-              borderRadius="$lg"
+              borderRadius="$full"
               justifyContent="space-between"
               alignItems="center"
               marginBottom="$6"
             >
               <HStack space="sm" alignItems="center">
                 <Ionicons name="settings" size={20} color={colors.text} />
-                <Text color={colors.text} fontWeight="$medium">Settings ⚙️</Text>
+                <Text color={colors.text} fontWeight="$medium">Settings</Text>
               </HStack>
               <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
             </HStack>
@@ -257,19 +263,19 @@ export default function ProfileScreen() {
           <Divider marginVertical="$4" />
 
           <VStack space="md" marginBottom="$6">
-            <Heading size="md" color={colors.text}>My Kicks 👟</Heading>
+            <Heading size="md" color={colors.text}>My Kicks</Heading>
             {myListings.length === 0 ? (
               <Text color={colors.textSecondary}>No listings yet. Drop some!</Text>
             ) : (
               myListings.map((listing) => (
-                <Card key={listing.id} padding="$3" backgroundColor={colors.card}>
+                <Card key={listing.id} padding="$3" backgroundColor={colors.card} borderRadius="$lg">
                   <HStack space="md" alignItems="center">
                     <Image
                       source={{ uri: listing.imageUrl }}
                       alt={listing.model}
                       width={60}
                       height={60}
-                      borderRadius={6}
+                      borderRadius={8}
                     />
                     <VStack flex={1} space="xs">
                       <Text fontWeight="$bold" color={colors.text}>{listing.model}</Text>
@@ -289,12 +295,12 @@ export default function ProfileScreen() {
           <Divider marginVertical="$4" />
 
           <VStack space="md" marginBottom="$6">
-            <Heading size="md" color={colors.text}>Looking For 🔍</Heading>
+            <Heading size="md" color={colors.text}>Looking For</Heading>
             {myRequests.length === 0 ? (
               <Text color={colors.textSecondary}>No requests yet</Text>
             ) : (
               myRequests.map((request) => (
-                <Card key={request.id} padding="$3" backgroundColor={colors.card}>
+                <Card key={request.id} padding="$3" backgroundColor={colors.card} borderRadius="$lg">
                   <HStack space="md" alignItems="center">
                     <VStack flex={1} space="xs">
                       <Text fontWeight="$bold" color={colors.text}>
@@ -315,8 +321,8 @@ export default function ProfileScreen() {
 
           <Divider marginVertical="$4" />
 
-          <Button size="lg" action="negative" onPress={handleLogout}>
-            <ButtonText>Catch you later! 🛹</ButtonText>
+          <Button size="lg" action="negative" onPress={handleLogout} borderRadius="$full">
+            <ButtonText>Catch you later!</ButtonText>
           </Button>
         </Box>
       </ScrollView>

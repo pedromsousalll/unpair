@@ -10,6 +10,7 @@ import {
   Card,
   Avatar,
   AvatarFallbackText,
+  AvatarImage,
   Spinner,
 } from '@gluestack-ui/themed';
 import { collection, query, orderBy, onSnapshot, doc, getDoc } from 'firebase/firestore';
@@ -24,6 +25,7 @@ interface Sneaker {
   id: string;
   userId: string;
   userName?: string;
+  userPhotoURL?: string;
   foot: 'left' | 'right';
   model: string;
   brand: string;
@@ -51,10 +53,13 @@ export default function HomeScreen() {
           const data = docSnap.data();
           
           let userName = 'Unknown';
+          let userPhotoURL = '';
           try {
             const userDoc = await getDoc(doc(db, 'users', data.userId));
             if (userDoc.exists()) {
-              userName = userDoc.data().email?.split('@')[0] || 'Unknown';
+              const userData = userDoc.data();
+              userName = userData.email?.split('@')[0] || 'Unknown';
+              userPhotoURL = userData.photoURL || '';
             }
           } catch (err) {
             console.log('Error fetching user:', err);
@@ -64,6 +69,7 @@ export default function HomeScreen() {
             id: docSnap.id,
             ...data,
             userName,
+            userPhotoURL,
           } as Sneaker;
         })
       );
@@ -107,19 +113,15 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <Box flex={1}>
-        <HStack
+        <Box
           padding="$4"
-          justifyContent="space-between"
           alignItems="center"
           borderBottomWidth={1}
           borderBottomColor={colors.border}
           backgroundColor={colors.surface}
         >
-          <Heading size="xl" color={colors.text}>UNPAIR 🛹</Heading>
-          <Avatar size="sm">
-            <AvatarFallbackText>{user?.email || 'U'}</AvatarFallbackText>
-          </Avatar>
-        </HStack>
+          <Heading size="xl" color={colors.text}>UNPAIR</Heading>
+        </Box>
 
         <SearchBar onSearch={handleSearch} placeholder="Search for kicks..." />
 
@@ -142,7 +144,7 @@ export default function HomeScreen() {
                 <Pressable 
                   key={sneaker.id} 
                   style={styles.gridItem}
-                  onPress={() => router.push(`/product/${sneaker.id}`)}
+                  onPress={() => {}}
                 >
                   <Card padding="$3" backgroundColor={colors.card} style={styles.card}>
                     <VStack space="sm">
@@ -151,7 +153,7 @@ export default function HomeScreen() {
                         alt={sneaker.model}
                         width="100%"
                         height={120}
-                        borderRadius={8}
+                        borderRadius={12}
                       />
                       <VStack space="xs">
                         <Text fontSize="$md" fontWeight="$bold" color={colors.text} numberOfLines={1}>
@@ -160,24 +162,22 @@ export default function HomeScreen() {
                         <Text size="sm" color={colors.textSecondary} numberOfLines={1}>
                           {sneaker.brand}
                         </Text>
-                        <HStack space="xs" flexWrap="wrap">
-                          <Text size="xs" fontWeight="$bold" color={colors.text}>
-                            {sneaker.foot === 'left' ? '👈 Left' : '👉 Right'}
-                          </Text>
-                          <Text size="xs" color={colors.textSecondary}>•</Text>
-                          <Text size="xs" color={colors.textSecondary}>
-                            Size {sneaker.size}
-                          </Text>
-                        </HStack>
-                        <HStack space="xs" alignItems="center" marginTop="$1">
-                          <Avatar size="2xs">
-                            <AvatarFallbackText>
-                              {sneaker.userName || 'U'}
-                            </AvatarFallbackText>
+                        <HStack justifyContent="space-between" alignItems="center" marginTop="$1">
+                          <VStack space="xs">
+                            <Text size="xs" color={colors.textSecondary}>
+                              {sneaker.foot === 'left' ? '👈 Left' : '👉 Right'} • Size {sneaker.size}
+                            </Text>
+                            <Text size="xs" color={colors.textSecondary}>
+                              {sneaker.condition}
+                            </Text>
+                          </VStack>
+                          <Avatar size="sm">
+                            {sneaker.userPhotoURL ? (
+                              <AvatarImage source={{ uri: sneaker.userPhotoURL }} />
+                            ) : (
+                              <AvatarFallbackText>{sneaker.userName || 'U'}</AvatarFallbackText>
+                            )}
                           </Avatar>
-                          <Text size="xs" color={colors.textSecondary} numberOfLines={1}>
-                            {sneaker.userName}
-                          </Text>
                         </HStack>
                       </VStack>
                     </VStack>
@@ -214,5 +214,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    borderRadius: 12,
   },
 });
