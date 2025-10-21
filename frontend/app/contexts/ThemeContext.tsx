@@ -49,7 +49,7 @@ const lightColors = {
 const darkColors = {
   background: '#0A0A0A',
   surface: '#1A1A1A',
-  primary: '#0A84FF',
+  primary: '#FFFFFF',
   secondary: '#FF7A50',
   text: '#FFFFFF',
   textSecondary: '#A0A0A0',
