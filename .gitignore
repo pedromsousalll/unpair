@@ -1,13 +1,10 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # IDE and editors
 .idea/
 .vscode/
 
 # Dependencies
 node_modules/
-/node_modules
-/.pnp
+.pnp
 .pnp.js
 .yarn/install-state.gz
 .yarn/*
@@ -16,50 +13,65 @@ node_modules/
 !.yarn/releases
 !.yarn/versions
 
-# Testing
-/coverage
-
-# Next.js
-/.next/
-/out/
-next-env.d.ts
-*.tsbuildinfo
-
-# Production builds
-/build
+# Expo / React Native
+.expo/
+.expo-shared/
+web-build/
 dist/
-dist
+build/
+*.tsbuildinfo
+expo-env.d.ts
+.metro-health-check*
+metro-cache/
 
-# Environment files (comprehensive coverage)
+# Android / iOS build artifacts
+android/.gradle/
+android/app/build/
+ios/Pods/
+ios/build/
+*.jks
+*.keystore
+*.p8
+*.p12
+*.key
+*.mobileprovision
 
+# Environment & Secrets
+*.env
+*.env.*
 *token.json*
 *credentials.json*
+.env*.local
+
+# Testing
+coverage/
 
 # Logs and debug files
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
+pnpm-debug.log*
+*.log
 dump.rdb
 
 # System files
 .DS_Store
 *.pem
 
-# Python
+# Python (caso uses scripts)
 __pycache__/
-*pyc*
+*.pyc
 venv/
 .venv/
 
 # Development tools
 chainlit.md
-.chainlit
+.chainlit/
 .ipynb_checkpoints/
-.ac
+.ac/
 
 # Deployment
-.vercel
+.vercel/
 
 # Data and databases
 agenthub/agents/youtube/db
@@ -73,19 +85,7 @@ agenthub/agents/youtube/db
 *.deb
 *.dylib
 
-# Build caches
-.cache/
-
-# Mobile development
-android-sdk/ -e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
+# Emergent artefacts
+.emergent/
+model.patch
+test_result.md
