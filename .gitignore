@@ -85,7 +85,10 @@ agenthub/agents/youtube/db
 *.deb
 *.dylib
 
-# Emergent artefacts
+# Emergent artefacts (já apagados, mas caso voltem a ser gerados)
 .emergent/
 model.patch
 test_result.md
+
+# React Native cache
+.metro-cache/
