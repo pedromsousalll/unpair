@@ -182,8 +182,9 @@ export default function SearchScreen() {
                   onPress={handleSubmit}
                   isDisabled={loading}
                   marginTop="$4"
+                  borderRadius="$full"
                 >
-                  <ButtonText>{loading ? 'Posting...' : 'Drop the Request 📥'}</ButtonText>
+                  <ButtonText>{loading ? 'Posting...' : 'Drop the Request'}</ButtonText>
                 </Button>
               </VStack>
             </Box>
