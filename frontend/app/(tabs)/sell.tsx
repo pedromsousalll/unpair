@@ -244,8 +244,9 @@ export default function SellScreen() {
                   onPress={handleSubmit}
                   isDisabled={loading}
                   marginTop="$4"
+                  borderRadius="$full"
                 >
-                  <ButtonText>{loading ? 'Posting...' : 'Drop it! 📥'}</ButtonText>
+                  <ButtonText>{loading ? 'Posting...' : 'Drop it!'}</ButtonText>
                 </Button>
               </VStack>
             </Box>
