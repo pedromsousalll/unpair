@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Pressable, Alert } from 'react-native';
 import {
   Box,
@@ -20,12 +20,13 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updateProfile } from 'firebase/auth';
-import { storage } from '../config/firebase';
+import { setDoc, doc } from 'firebase/firestore';
+import { storage, db } from '../config/firebase';
 
 export default function SettingsScreen() {
   const { user, signOut } = useAuth();
   const { colors, isDark, themeMode, setThemeMode } = useTheme();
-  const [uploading, setUploading] = React.useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const handlePhotoUpload = async () => {
     try {
@@ -52,7 +53,14 @@ export default function SettingsScreen() {
         const photoURL = await getDownloadURL(storageRef);
         
         await updateProfile(user, { photoURL });
-        Alert.alert('Success', 'Profile photo updated! 📸');
+        
+        await setDoc(doc(db, 'users', user.uid), {
+          email: user.email,
+          photoURL: photoURL,
+          uid: user.uid,
+        }, { merge: true });
+        
+        Alert.alert('Success', 'Profile photo updated!');
         setUploading(false);
       }
     } catch (error: any) {
@@ -64,7 +72,7 @@ export default function SettingsScreen() {
   const handleLogout = () => {
     Alert.alert(
       'Logout',
-      'Later, skater! Come back soon! 🛹',
+      'Later, skater! Come back soon!',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -86,7 +94,6 @@ export default function SettingsScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Box padding="$4" backgroundColor={colors.background}>
-          {/* Profile Section */}
           <VStack space="lg" alignItems="center" marginBottom="$6">
             <Pressable onPress={handlePhotoUpload} disabled={uploading}>
               <Box position="relative">
@@ -105,7 +112,7 @@ export default function SettingsScreen() {
                   borderRadius="$full"
                   padding="$2"
                 >
-                  <Ionicons name="camera" size={16} color="#FFFFFF" />
+                  <Ionicons name="camera" size={16} color={isDark ? '#000000' : '#FFFFFF'} />
                 </Box>
               </Box>
             </Pressable>
@@ -121,10 +128,9 @@ export default function SettingsScreen() {
 
           <Divider marginVertical="$4" backgroundColor={colors.border} />
 
-          {/* Theme Settings */}
           <VStack space="md" marginBottom="$6">
             <Text fontSize="$lg" fontWeight="$bold" color={colors.text}>
-              🎨 Appearance
+              Appearance
             </Text>
             
             <HStack justifyContent="space-between" alignItems="center" paddingVertical="$2">
@@ -134,7 +140,9 @@ export default function SettingsScreen() {
               </HStack>
               <Switch
                 value={themeMode === 'dark'}
-                onValueChange={(value) => setThemeMode(value ? 'dark' : 'light')}
+                onValueChange={(value) => {
+                  setThemeMode(value ? 'dark' : 'light');
+                }}
                 disabled={themeMode === 'system'}
               />
             </HStack>
@@ -146,17 +154,22 @@ export default function SettingsScreen() {
               </HStack>
               <Switch
                 value={themeMode === 'system'}
-                onValueChange={(value) => setThemeMode(value ? 'system' : (isDark ? 'dark' : 'light'))}
+                onValueChange={(value) => {
+                  if (value) {
+                    setThemeMode('system');
+                  } else {
+                    setThemeMode(isDark ? 'dark' : 'light');
+                  }
+                }}
               />
             </HStack>
           </VStack>
 
           <Divider marginVertical="$4" backgroundColor={colors.border} />
 
-          {/* Account Settings */}
           <VStack space="md" marginBottom="$6">
             <Text fontSize="$lg" fontWeight="$bold" color={colors.text}>
-              ⚙️ Account
+              Account
             </Text>
             
             <Pressable>
@@ -192,8 +205,8 @@ export default function SettingsScreen() {
 
           <Divider marginVertical="$4" backgroundColor={colors.border} />
 
-          <Button size="lg" action="negative" onPress={handleLogout} marginTop="$4">
-            <ButtonText>Catch you later! 🛹</ButtonText>
+          <Button size="lg" action="negative" onPress={handleLogout} marginTop="$4" borderRadius="$full">
+            <ButtonText>Catch you later!</ButtonText>
           </Button>
         </Box>
       </ScrollView>
