@@ -2,9 +2,11 @@ import { useEffect } from 'react';
 import { useRouter, useSegments } from 'expo-router';
 import { useAuth } from './contexts/AuthContext';
 import { View, ActivityIndicator } from 'react-native';
+import { useTheme } from './contexts/ThemeContext';
 
 export default function Index() {
   const { user, loading } = useAuth();
+  const { colors } = useTheme();
   const router = useRouter();
   const segments = useSegments();
 
@@ -15,18 +17,16 @@ export default function Index() {
     const inTabsGroup = segments[0] === '(tabs)';
 
     if (!user && !inAuthGroup) {
-      // User not logged in, redirect to login
       router.replace('/(auth)/login');
     } else if (user && !inTabsGroup) {
-      // User is logged in, redirect to main app
       router.replace('/(tabs)/home');
     }
   }, [user, loading, segments]);
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }

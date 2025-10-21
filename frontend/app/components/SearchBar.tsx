@@ -1,20 +1,14 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Input, InputField } from '@gluestack-ui/themed';
+import { View, StyleSheet, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
 
-interface SearchBarProps {
-  onSearch: (query: string) => void;
-  placeholder?: string;
-}
-
-export const SearchBar: React.FC<SearchBarProps> = ({ 
+export const SearchBar: React.FC<{ onSearch: (query: string) => void; placeholder?: string }> = ({ 
   onSearch, 
   placeholder = "Search for kicks..." 
 }) => {
   const [query, setQuery] = useState('');
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
 
   const handleSearch = (text: string) => {
     setQuery(text);
@@ -26,14 +20,20 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       <View style={styles.searchIcon}>
         <Ionicons name="search" size={20} color={colors.textSecondary} />
       </View>
-      <Input variant="outline" flex={1}>
-        <InputField
-          placeholder={placeholder}
-          value={query}
-          onChangeText={handleSearch}
-          paddingLeft="$10"
-        />
-      </Input>
+      <TextInput
+        style={[
+          styles.input,
+          { 
+            color: colors.text,
+            backgroundColor: isDark ? colors.background : '#FFFFFF',
+            borderColor: colors.border,
+          }
+        ]}
+        placeholder={placeholder}
+        placeholderTextColor={colors.textSecondary}
+        value={query}
+        onChangeText={handleSearch}
+      />
     </View>
   );
 };
@@ -48,7 +48,16 @@ const styles = StyleSheet.create({
   },
   searchIcon: {
     position: 'absolute',
-    left: 24,
+    left: 28,
     zIndex: 1,
+  },
+  input: {
+    flex: 1,
+    height: 44,
+    paddingLeft: 40,
+    paddingRight: 16,
+    borderRadius: 22,
+    borderWidth: 1,
+    fontSize: 16,
   },
 });
