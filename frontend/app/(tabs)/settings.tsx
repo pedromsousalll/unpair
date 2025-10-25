@@ -28,6 +28,7 @@ export default function SettingsScreen() {
   const { user, signOut } = useAuth();
   const { colors, isDark, themeMode, setThemeMode } = useTheme();
   const [uploading, setUploading] = useState(false);
+  const router = useRouter();
 
   const handlePhotoUpload = async () => {
     try {
