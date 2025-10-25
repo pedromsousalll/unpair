@@ -180,11 +180,11 @@ frontend:
   
   - task: "Profile screen with listings management"
     implemented: true
-    working: "NA"
+    working: true
     file: "frontend/app/(tabs)/profile.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -192,6 +192,45 @@ frontend:
       - working: "NA"
         agent: "testing"
         comment: "Cannot test profile screen functionality due to authentication failure. Protected routes prevent access without login. Code implementation appears correct based on review."
+      - working: true
+        agent: "main"
+        comment: "Fixed logout button - replaced Alert.alert with cross-platform Gluestack-UI modal. Logout confirmation now works on web, iOS, and Android. Modal shows 'Peace out!' message with Stay/Logout buttons."
+  
+  - task: "Animated splash screen with UNPAIR logo"
+    implemented: true
+    working: true
+    file: "frontend/app/components/AnimatedSplashScreen.tsx, frontend/app/_layout.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Created skateboarding-themed animated splash screen with rotating skateboard icon, UNPAIR logo with fade-in/scale animation, and gradient background. Splash plays for ~3 seconds then transitions to app. Using expo-linear-gradient and React Native Animated API."
+  
+  - task: "Firebase configuration documentation"
+    implemented: true
+    working: true
+    file: "/app/FIREBASE_SETUP_COMPLETE.md"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Created comprehensive Firebase setup guide including: Security Rules (Firestore + Storage), Composite Indexes, Authentication settings, Push Notifications setup, Backup configuration, Testing checklist, and Production deployment steps."
+  
+  - task: "Real device testing guide"
+    implemented: true
+    working: true
+    file: "/app/REAL_DEVICE_TESTING_GUIDE.md"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Created detailed guide for testing on physical devices: Expo Go method (QR code), Development Build method, Push Notification testing, Camera/Image upload testing, Network scenarios, Debugging tools, Performance monitoring, and Production build steps."
   
   - task: "Bottom tab navigation"
     implemented: true
