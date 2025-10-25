@@ -1,35 +1,24 @@
-import { Tabs, useRouter } from 'expo-router';
+import { Tabs, useRouter, usePathname } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useEffect } from 'react';
-import { View, ActivityIndicator } from 'react-native';
 
 export default function TabLayout() {
   const { colors } = useTheme();
   const { user, loading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
-    // Redirect to login if user is not authenticated
-    if (!loading && !user) {
+    // Only home is public, all other tabs require authentication
+    const isHome = pathname === '/(tabs)/home' || pathname === '/home';
+    
+    if (!loading && !user && !isHome) {
+      // Redirect to login if trying to access protected tabs
       router.replace('/(auth)/login');
     }
-  }, [user, loading]);
-
-  // Show loading state while checking authentication
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
-  }
-
-  // Don't render tabs if user is not authenticated
-  if (!user) {
-    return null;
-  }
+  }, [user, loading, pathname]);
 
   return (
     <Tabs
@@ -42,6 +31,18 @@ export default function TabLayout() {
         },
         tabBarShowLabel: false,
         headerShown: false,
+      }}
+      screenListeners={{
+        tabPress: (e) => {
+          // Prevent navigation to protected tabs if not authenticated
+          const targetRoute = e.target?.split('--')[0];
+          const protectedRoutes = ['sell', 'search', 'messages', 'profile', 'settings'];
+          
+          if (!user && protectedRoutes.some(route => targetRoute?.includes(route))) {
+            e.preventDefault();
+            router.push('/(auth)/login');
+          }
+        },
       }}
     >
       <Tabs.Screen
