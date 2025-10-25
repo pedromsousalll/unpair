@@ -19,6 +19,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SearchBar } from '../components/SearchBar';
+import { ProductListSkeleton } from '../components/SkeletonLoaders';
+import { NoResultsState, NoDataState, ErrorState } from '../components/EmptyStates';
+import { OnboardingModal } from '../components/OnboardingModal';
+import { useNotifications } from '../hooks/useNotifications';
 import { useRouter } from 'expo-router';
 
 interface Sneaker {
