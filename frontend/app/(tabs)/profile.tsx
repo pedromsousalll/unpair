@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, StyleSheet, Pressable, Alert, View as RNView } from 'react-native';
+import { ScrollView, StyleSheet, Pressable, Alert, View as RNView, Platform } from 'react-native';
 import {
   Box,
   VStack,
@@ -15,6 +15,15 @@ import {
   Image,
   Divider,
   Spinner,
+  Modal,
+  ModalBackdrop,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  Icon,
+  CloseIcon,
 } from '@gluestack-ui/themed';
 import { collection, query, where, onSnapshot, deleteDoc, doc, setDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
