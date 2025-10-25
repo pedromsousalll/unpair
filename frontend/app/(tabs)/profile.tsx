@@ -60,6 +60,7 @@ export default function ProfileScreen() {
   const [myRequests, setMyRequests] = useState<SearchRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const { user, signOut } = useAuth();
   const { colors } = useTheme();
   const router = useRouter();
