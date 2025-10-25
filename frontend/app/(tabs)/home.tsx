@@ -144,7 +144,7 @@ export default function HomeScreen() {
                 <Pressable 
                   key={sneaker.id} 
                   style={styles.gridItem}
-                  onPress={() => {}}
+                  onPress={() => router.push(`/product/${sneaker.id}`)}
                 >
                   <Card padding="$3" backgroundColor={colors.card} style={styles.card}>
                     <VStack space="sm">
