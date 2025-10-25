@@ -11,11 +11,11 @@ export default function TabLayout() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Only home is public, all other tabs require authentication
-    const isHome = pathname === '/(tabs)/home' || pathname === '/home';
+    // Only check auth for non-home routes
+    const isHome = pathname.includes('/home');
     
     if (!loading && !user && !isHome) {
-      // Redirect to login if trying to access protected tabs
+      // Redirect to login if trying to access protected tabs via URL
       router.replace('/(auth)/login');
     }
   }, [user, loading, pathname]);
