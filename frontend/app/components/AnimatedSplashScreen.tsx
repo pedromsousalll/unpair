@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { StyleSheet, Animated, Easing, Dimensions, View, Text } from 'react-native';
+import { StyleSheet, Animated, Easing, Dimensions, View, Text, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
@@ -9,72 +9,37 @@ interface AnimatedSplashScreenProps {
 }
 
 export default function AnimatedSplashScreen({ onFinish }: AnimatedSplashScreenProps) {
-  // Animation values with better initial states
-  const skateboardY = useRef(new Animated.Value(-150)).current;
-  const skateboardRotate = useRef(new Animated.Value(0)).current;
-  const logoOpacity = useRef(new Animated.Value(0)).current;
-  const logoScale = useRef(new Animated.Value(0.3)).current;
-  const bottomOpacity = useRef(new Animated.Value(0)).current;
+  // Use native driver only on native platforms, not on web
+  const useNative = Platform.OS !== 'web';
+  
+  // Simplified animation values
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.8)).current;
 
   useEffect(() => {
-    // Start animation after a tiny delay to ensure component is mounted
-    const timer = setTimeout(() => {
-      Animated.sequence([
-        // Skateboard drops in with rotation
-        Animated.parallel([
-          Animated.spring(skateboardY, {
-            toValue: 0,
-            friction: 7,
-            tension: 35,
-            useNativeDriver: true,
-          }),
-          Animated.timing(skateboardRotate, {
-            toValue: 1,
-            duration: 900,
-            easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
-          }),
-        ]),
-        // Small delay before logo animation
-        Animated.delay(150),
-        // Logo fades in and scales up
-        Animated.parallel([
-          Animated.timing(logoOpacity, {
-            toValue: 1,
-            duration: 500,
-            easing: Easing.out(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.spring(logoScale, {
-            toValue: 1,
-            friction: 5,
-            tension: 35,
-            useNativeDriver: true,
-          }),
-        ]),
-        // Bottom text fades in
-        Animated.timing(bottomOpacity, {
-          toValue: 1,
-          duration: 400,
-          useNativeDriver: true,
-        }),
-        // Hold for a moment
-        Animated.delay(500),
-      ]).start(() => {
-        // Animation complete, call onFinish if provided
+    // Simple, smooth fade-in and scale animation
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: useNative,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 8,
+        tension: 40,
+        useNativeDriver: useNative,
+      }),
+    ]).start(() => {
+      // Hold for a moment then finish
+      setTimeout(() => {
         if (onFinish) {
-          setTimeout(onFinish, 200);
+          onFinish();
         }
-      });
-    }, 100); // Small initial delay
-
-    return () => clearTimeout(timer);
+      }, 800);
+    });
   }, []);
-
-  const rotation = skateboardRotate.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
 
   return (
     <LinearGradient
@@ -83,57 +48,38 @@ export default function AnimatedSplashScreen({ onFinish }: AnimatedSplashScreenP
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
-      <View style={styles.contentContainer}>
-        {/* Animated Skateboard Icon */}
-        <Animated.View
-          style={[
-            styles.skateboardContainer,
-            {
-              transform: [
-                { translateY: skateboardY },
-                { rotate: rotation },
-              ],
-            },
-          ]}
-        >
+      <Animated.View
+        style={[
+          styles.contentContainer,
+          {
+            opacity: fadeAnim,
+            transform: [{ scale: scaleAnim }],
+          },
+        ]}
+      >
+        {/* Skateboard Icon */}
+        <View style={styles.skateboardContainer}>
           <View style={styles.skateboard}>
-            {/* Skateboard deck */}
             <View style={styles.deck} />
-            {/* Left wheel */}
             <View style={[styles.wheel, styles.wheelLeft]} />
-            {/* Right wheel */}
             <View style={[styles.wheel, styles.wheelRight]} />
-            {/* Trucks */}
             <View style={[styles.truck, styles.truckLeft]} />
             <View style={[styles.truck, styles.truckRight]} />
           </View>
-        </Animated.View>
+        </View>
 
-        {/* Animated UNPAIR Logo */}
-        <Animated.View
-          style={{
-            opacity: logoOpacity,
-            transform: [{ scale: logoScale }],
-          }}
-        >
-          <View style={styles.logoContainer}>
-            <Text style={styles.logoText}>UNPAIR</Text>
-            <View style={styles.underline} />
-            <Text style={styles.subtitle}>Find Your Match</Text>
-          </View>
-        </Animated.View>
+        {/* UNPAIR Logo */}
+        <View style={styles.logoContainer}>
+          <Text style={styles.logoText}>UNPAIR</Text>
+          <View style={styles.underline} />
+          <Text style={styles.subtitle}>Find Your Match</Text>
+        </View>
 
         {/* Bottom text */}
         <View style={styles.bottomContainer}>
-          <Animated.View
-            style={{
-              opacity: bottomOpacity,
-            }}
-          >
-            <Text style={styles.bottomText}>Sneaker Marketplace</Text>
-          </Animated.View>
+          <Text style={styles.bottomText}>Sneaker Marketplace</Text>
         </View>
-      </View>
+      </Animated.View>
     </LinearGradient>
   );
 }
