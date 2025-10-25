@@ -174,21 +174,21 @@ export default function SettingsScreen() {
               Account
             </Text>
             
-            <Pressable>
+            <Pressable onPress={() => router.push('/terms')}>
               <HStack justifyContent="space-between" alignItems="center" paddingVertical="$3">
                 <HStack space="sm" alignItems="center">
-                  <Ionicons name="notifications" size={20} color={colors.text} />
-                  <Text color={colors.text}>Notifications</Text>
+                  <Ionicons name="document-text" size={20} color={colors.text} />
+                  <Text color={colors.text}>Terms of Service</Text>
                 </HStack>
                 <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
               </HStack>
             </Pressable>
 
-            <Pressable>
+            <Pressable onPress={() => router.push('/privacy')}>
               <HStack justifyContent="space-between" alignItems="center" paddingVertical="$3">
                 <HStack space="sm" alignItems="center">
-                  <Ionicons name="lock-closed" size={20} color={colors.text} />
-                  <Text color={colors.text}>Privacy</Text>
+                  <Ionicons name="shield-checkmark" size={20} color={colors.text} />
+                  <Text color={colors.text}>Privacy Policy</Text>
                 </HStack>
                 <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
               </HStack>
