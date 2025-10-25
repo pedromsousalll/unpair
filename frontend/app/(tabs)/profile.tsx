@@ -187,36 +187,17 @@ export default function ProfileScreen() {
   };
 
   const handleLogout = async () => {
-    if (Platform.OS === 'web') {
-      const confirmed = window.confirm('Later, skater! Are you sure you want to logout?');
-      if (confirmed) {
-        try {
-          await signOut();
-          router.replace('/(auth)/login');
-        } catch (err: any) {
-          alert('Error: ' + (err.message || 'Failed to logout'));
-        }
-      }
-    } else {
-      Alert.alert(
-        'Peace out!',
-        'Later, skater!',
-        [
-          { text: 'Stay', style: 'cancel' },
-          {
-            text: 'Logout',
-            style: 'destructive',
-            onPress: async () => {
-              try {
-                await signOut();
-                router.replace('/(auth)/login');
-              } catch (err: any) {
-                Alert.alert('Error', err.message || 'Failed to logout');
-              }
-            },
-          },
-        ]
-      );
+    setShowLogoutModal(true);
+  };
+
+  const confirmLogout = async () => {
+    try {
+      await signOut();
+      setShowLogoutModal(false);
+      router.replace('/(auth)/login');
+    } catch (err: any) {
+      Alert.alert('Error', err.message || 'Failed to logout');
+      setShowLogoutModal(false);
     }
   };
 
