@@ -329,6 +329,43 @@ export default function ProfileScreen() {
           </Button>
         </Box>
       </ScrollView>
+
+      {/* Logout Confirmation Modal */}
+      <Modal isOpen={showLogoutModal} onClose={() => setShowLogoutModal(false)}>
+        <ModalBackdrop />
+        <ModalContent backgroundColor={colors.card}>
+          <ModalHeader borderBottomWidth={1} borderColor={colors.border}>
+            <Heading size="lg" color={colors.text}>Peace out! 🛹</Heading>
+            <ModalCloseButton>
+              <Icon as={CloseIcon} color={colors.text} />
+            </ModalCloseButton>
+          </ModalHeader>
+          <ModalBody paddingVertical="$6">
+            <Text color={colors.text} size="md">
+              Later, skater! Are you sure you want to logout?
+            </Text>
+          </ModalBody>
+          <ModalFooter borderTopWidth={1} borderColor={colors.border}>
+            <HStack space="md" width="$full">
+              <Button
+                flex={1}
+                variant="outline"
+                onPress={() => setShowLogoutModal(false)}
+                borderColor={colors.border}
+              >
+                <ButtonText color={colors.text}>Stay</ButtonText>
+              </Button>
+              <Button
+                flex={1}
+                action="negative"
+                onPress={confirmLogout}
+              >
+                <ButtonText>Logout</ButtonText>
+              </Button>
+            </HStack>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </SafeAreaView>
   );
 }
