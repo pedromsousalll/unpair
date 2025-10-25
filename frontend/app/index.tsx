@@ -16,9 +16,10 @@ export default function Index() {
     const inAuthGroup = segments[0] === '(auth)';
     const inTabsGroup = segments[0] === '(tabs)';
 
-    if (!user && !inAuthGroup) {
-      router.replace('/(auth)/login');
-    } else if (user && !inTabsGroup) {
+    // Allow unauthenticated users to access home
+    if (!user && !inAuthGroup && !inTabsGroup) {
+      router.replace('/(tabs)/home');
+    } else if (user && !inTabsGroup && !inAuthGroup) {
       router.replace('/(tabs)/home');
     }
   }, [user, loading, segments]);
