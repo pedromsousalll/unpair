@@ -43,10 +43,15 @@ export default function HomeScreen() {
   const [sneakers, setSneakers] = useState<Sneaker[]>([]);
   const [filteredSneakers, setFilteredSneakers] = useState<Sneaker[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const { user } = useAuth();
   const { colors } = useTheme();
   const router = useRouter();
+  
+  // Initialize notifications
+  useNotifications();
 
   useEffect(() => {
     const q = query(collection(db, 'sneakers'), orderBy('createdAt', 'desc'));
