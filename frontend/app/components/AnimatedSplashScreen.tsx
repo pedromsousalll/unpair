@@ -9,52 +9,66 @@ interface AnimatedSplashScreenProps {
 }
 
 export default function AnimatedSplashScreen({ onFinish }: AnimatedSplashScreenProps) {
-  // Animation values
-  const skateboardY = useRef(new Animated.Value(-100)).current;
+  // Animation values with better initial states
+  const skateboardY = useRef(new Animated.Value(-150)).current;
   const skateboardRotate = useRef(new Animated.Value(0)).current;
   const logoOpacity = useRef(new Animated.Value(0)).current;
-  const logoScale = useRef(new Animated.Value(0.5)).current;
+  const logoScale = useRef(new Animated.Value(0.3)).current;
+  const bottomOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Sequence of animations
-    Animated.sequence([
-      // Skateboard drops in with rotation
-      Animated.parallel([
-        Animated.spring(skateboardY, {
-          toValue: 0,
-          friction: 8,
-          tension: 40,
-          useNativeDriver: true,
-        }),
-        Animated.timing(skateboardRotate, {
+    // Start animation after a tiny delay to ensure component is mounted
+    const timer = setTimeout(() => {
+      Animated.sequence([
+        // Skateboard drops in with rotation
+        Animated.parallel([
+          Animated.spring(skateboardY, {
+            toValue: 0,
+            friction: 7,
+            tension: 35,
+            useNativeDriver: true,
+          }),
+          Animated.timing(skateboardRotate, {
+            toValue: 1,
+            duration: 900,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: true,
+          }),
+        ]),
+        // Small delay before logo animation
+        Animated.delay(150),
+        // Logo fades in and scales up
+        Animated.parallel([
+          Animated.timing(logoOpacity, {
+            toValue: 1,
+            duration: 500,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.spring(logoScale, {
+            toValue: 1,
+            friction: 5,
+            tension: 35,
+            useNativeDriver: true,
+          }),
+        ]),
+        // Bottom text fades in
+        Animated.timing(bottomOpacity, {
           toValue: 1,
-          duration: 800,
-          easing: Easing.out(Easing.cubic),
+          duration: 400,
           useNativeDriver: true,
         }),
-      ]),
-      // Logo fades in and scales up
-      Animated.parallel([
-        Animated.timing(logoOpacity, {
-          toValue: 1,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-        Animated.spring(logoScale, {
-          toValue: 1,
-          friction: 6,
-          tension: 40,
-          useNativeDriver: true,
-        }),
-      ]),
-      // Hold for a moment
-      Animated.delay(400),
-    ]).start(() => {
-      // Animation complete, call onFinish if provided
-      if (onFinish) {
-        setTimeout(onFinish, 300);
-      }
-    });
+        // Hold for a moment
+        Animated.delay(500),
+      ]).start(() => {
+        // Animation complete, call onFinish if provided
+        if (onFinish) {
+          setTimeout(onFinish, 200);
+        }
+      });
+    }, 100); // Small initial delay
+
+    return () => clearTimeout(timer);
   }, []);
 
   const rotation = skateboardRotate.interpolate({
@@ -113,7 +127,7 @@ export default function AnimatedSplashScreen({ onFinish }: AnimatedSplashScreenP
         <View style={styles.bottomContainer}>
           <Animated.View
             style={{
-              opacity: logoOpacity,
+              opacity: bottomOpacity,
             }}
           >
             <Text style={styles.bottomText}>Sneaker Marketplace</Text>
