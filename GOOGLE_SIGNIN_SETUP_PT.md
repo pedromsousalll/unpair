@@ -65,7 +65,7 @@ No Firebase Console:
 
 Depois de configurar:
 
-1. Abra o app: https://unpair-sneakers.preview.emergentagent.com
+1. Abra o app: https://sneaker-vault-13.preview.emergentagent.com
 2. Clique em "Continuar com Google"
 3. Faça login com sua conta Google
 4. Você será redirecionado para a tela Home do UNPAIR!
