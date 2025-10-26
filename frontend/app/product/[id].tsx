@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, StyleSheet, Alert, Linking, Share } from 'react-native';
+import { ScrollView, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import {
   Box,
   VStack,
@@ -10,12 +10,9 @@ import {
   Avatar,
   AvatarFallbackText,
   AvatarImage,
-  Button,
-  ButtonText,
   Spinner,
   Badge,
   BadgeText,
-  Pressable,
 } from '@gluestack-ui/themed';
 import { doc, getDoc, collection, query, where, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -46,6 +43,7 @@ export default function ProductDetailScreen() {
   const [sneaker, setSneaker] = useState<Sneaker | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [creatingChat, setCreatingChat] = useState(false);
   const { user } = useAuth();
   const { colors } = useTheme();
   const router = useRouter();
@@ -91,7 +89,13 @@ export default function ProductDetailScreen() {
   };
 
   const handleStartChat = async () => {
+    console.log('=== MESSAGE SELLER CLICKED ===');
+    console.log('User:', user?.uid);
+    console.log('Sneaker:', sneaker?.id);
+    console.log('Sneaker userId:', sneaker?.userId);
+
     if (!user) {
+      console.log('No user logged in - showing alert');
       Alert.alert(
         'Login Required',
         'You need to be logged in to message the seller.',
@@ -103,11 +107,18 @@ export default function ProductDetailScreen() {
       return;
     }
 
-    if (!sneaker) return;
+    if (!sneaker) {
+      console.log('No sneaker data');
+      return;
+    }
+
+    setCreatingChat(true);
 
     try {
       const participants = [user.uid, sneaker.userId].sort();
       const conversationId = participants.join('_');
+      
+      console.log('Creating/finding conversation:', conversationId);
 
       const convQuery = query(
         collection(db, 'conversations'),
@@ -117,6 +128,7 @@ export default function ProductDetailScreen() {
       const existingConv = await getDocs(convQuery);
 
       if (existingConv.empty) {
+        console.log('Creating new conversation');
         await addDoc(collection(db, 'conversations'), {
           conversationId,
           participants,
@@ -127,60 +139,18 @@ export default function ProductDetailScreen() {
           lastMessageTime: serverTimestamp(),
           createdAt: serverTimestamp(),
         });
+        console.log('Conversation created');
+      } else {
+        console.log('Conversation already exists');
       }
 
+      console.log('Navigating to chat:', conversationId);
       router.push(`/chat/${conversationId}`);
     } catch (error: any) {
-      console.error('Error starting chat:', error);
+      console.error('Chat error:', error);
       Alert.alert('Error', error.message || 'Failed to start chat');
-    }
-  };
-
-  const handleShare = async () => {
-    try {
-      await Share.share({
-        message: `Check out this ${sneaker?.brand} ${sneaker?.model} on KICKS!`,
-      });
-    } catch (error) {
-      console.log('Error sharing:', error);
-    }
-  };
-
-  const handleReport = () => {
-    Alert.alert(
-      'Report Listing',
-      'Why are you reporting this listing?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Fake/Scam',
-          onPress: () => submitReport('fake'),
-        },
-        {
-          text: 'Inappropriate',
-          onPress: () => submitReport('inappropriate'),
-        },
-        {
-          text: 'Other',
-          onPress: () => submitReport('other'),
-        },
-      ]
-    );
-  };
-
-  const submitReport = async (reason: string) => {
-    try {
-      await addDoc(collection(db, 'reports'), {
-        reportedBy: user?.uid,
-        sneakerId: sneaker?.id,
-        sellerId: sneaker?.userId,
-        reason,
-        createdAt: serverTimestamp(),
-        status: 'pending',
-      });
-      Alert.alert('Thanks!', 'Report submitted. We\'ll review it soon.');
-    } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to submit report');
+    } finally {
+      setCreatingChat(false);
     }
   };
 
@@ -198,9 +168,9 @@ export default function ProductDetailScreen() {
         <Box flex={1} justifyContent="center" alignItems="center" padding="$4">
           <Text fontSize="$xl" marginBottom="$2">😕</Text>
           <Text size="lg" color={colors.textSecondary}>Sneaker not found</Text>
-          <Button marginTop="$4" onPress={() => router.back()} borderRadius="$full">
-            <ButtonText>Go Back</ButtonText>
-          </Button>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Text style={styles.backButtonText}>Go Back</Text>
+          </TouchableOpacity>
         </Box>
       </SafeAreaView>
     );
@@ -231,7 +201,7 @@ export default function ProductDetailScreen() {
               justifyContent="center"
             >
               {images.map((img, index) => (
-                <Pressable
+                <TouchableOpacity
                   key={index}
                   onPress={() => setSelectedImageIndex(index)}
                   style={[
@@ -246,7 +216,7 @@ export default function ProductDetailScreen() {
                     height={50}
                     borderRadius={8}
                   />
-                </Pressable>
+                </TouchableOpacity>
               ))}
             </HStack>
           )}
@@ -258,28 +228,12 @@ export default function ProductDetailScreen() {
             right={16}
             justifyContent="space-between"
           >
-            <Pressable
+            <TouchableOpacity
               onPress={() => router.back()}
               style={[styles.iconButton, { backgroundColor: 'rgba(0,0,0,0.5)' }]}
             >
               <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-            </Pressable>
-            <HStack space="sm">
-              <Pressable
-                onPress={handleShare}
-                style={[styles.iconButton, { backgroundColor: 'rgba(0,0,0,0.5)' }]}
-              >
-                <Ionicons name="share-social" size={24} color="#FFFFFF" />
-              </Pressable>
-              {!isOwnListing && (
-                <Pressable
-                  onPress={handleReport}
-                  style={[styles.iconButton, { backgroundColor: 'rgba(0,0,0,0.5)' }]}
-                >
-                  <Ionicons name="flag" size={24} color="#FFFFFF" />
-                </Pressable>
-              )}
-            </HStack>
+            </TouchableOpacity>
           </HStack>
         </Box>
 
@@ -288,7 +242,7 @@ export default function ProductDetailScreen() {
             <HStack justifyContent="space-between" alignItems="flex-start">
               <VStack flex={1} space="xs">
                 <Heading size="2xl" color={colors.text}>
-                  {sneaker.model}
+                  {sneaker.model || sneaker.brand}
                 </Heading>
                 <Text size="lg" color={colors.textSecondary}>
                   {sneaker.brand}
@@ -297,10 +251,10 @@ export default function ProductDetailScreen() {
               <Badge
                 size="lg"
                 variant="solid"
-                backgroundColor={sneaker.foot === 'left' ? colors.primary : colors.secondary}
+                backgroundColor={sneaker.foot === 'left' ? '#f1b311' : '#999'}
                 borderRadius="$lg"
               >
-                <BadgeText color={colors.background}>
+                <BadgeText color="#000000">
                   {sneaker.foot === 'left' ? '👈 LEFT' : '👉 RIGHT'}
                 </BadgeText>
               </Badge>
@@ -315,14 +269,16 @@ export default function ProductDetailScreen() {
                   {sneaker.size}
                 </Text>
               </VStack>
-              <VStack space="xs">
-                <Text size="sm" color={colors.textSecondary}>
-                  Condition
-                </Text>
-                <Text fontSize="$lg" fontWeight="$semibold" color={colors.text}>
-                  {sneaker.condition}
-                </Text>
-              </VStack>
+              {sneaker.condition && (
+                <VStack space="xs">
+                  <Text size="sm" color={colors.textSecondary}>
+                    Condition
+                  </Text>
+                  <Text fontSize="$lg" fontWeight="$semibold" color={colors.text}>
+                    {sneaker.condition}
+                  </Text>
+                </VStack>
+              )}
             </HStack>
 
             <Box
@@ -362,18 +318,16 @@ export default function ProductDetailScreen() {
                 </Text>
               </Box>
             ) : (
-              <Button
-                size="lg"
-                marginTop="$4"
+              <TouchableOpacity
                 onPress={handleStartChat}
-                borderRadius="$full"
-                backgroundColor="#f1b311"
+                disabled={creatingChat}
+                style={[styles.messageButton, creatingChat && styles.messageButtonDisabled]}
               >
                 <Ionicons name="chatbubble" size={20} color="#000000" />
-                <ButtonText marginLeft="$2" color="#000000" fontWeight="$bold">
-                  MESSAGE SELLER
-                </ButtonText>
-              </Button>
+                <Text style={styles.messageButtonText}>
+                  {creatingChat ? 'OPENING CHAT...' : 'MESSAGE SELLER'}
+                </Text>
+              </TouchableOpacity>
             )}
           </VStack>
         </Box>
@@ -400,5 +354,37 @@ const styles = StyleSheet.create({
   },
   thumbnailActive: {
     borderColor: '#f1b311',
+  },
+  backButton: {
+    marginTop: 16,
+    backgroundColor: '#f1b311',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 25,
+  },
+  backButtonText: {
+    color: '#000000',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  messageButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f1b311',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 30,
+    marginTop: 16,
+    gap: 8,
+  },
+  messageButtonDisabled: {
+    backgroundColor: '#999',
+  },
+  messageButtonText: {
+    color: '#000000',
+    fontWeight: 'bold',
+    fontSize: 16,
+    letterSpacing: 0.5,
   },
 });
