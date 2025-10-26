@@ -6,7 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Notifications from 'expo-notifications';
-import { GraffitiInput, GraffitiButton, GraffitiHeader, BrandPicker } from '../components/graffiti';
+import { GraffitiInput, GraffitiButton, GraffitiHeader, BrandPicker, SizePicker } from '../components/graffiti';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function SearchScreen() {
