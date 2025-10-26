@@ -226,7 +226,7 @@ export default function ProfileScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Box padding="$4">
           <VStack space="lg" alignItems="center" marginBottom="$6">
-            <Pressable onPress={handlePhotoUpload} disabled={uploading}>
+            <TouchableOpacity onPress={handlePhotoUpload} disabled={uploading}>
               <Box position="relative">
                 <Avatar size="2xl" backgroundColor={colors.surface}>
                   {user?.photoURL ? (
@@ -244,7 +244,7 @@ export default function ProfileScreen() {
                   <Ionicons name="camera" size={16} color="#FFFFFF" />
                 </RNView>
               </Box>
-            </Pressable>
+            </TouchableOpacity>
             {uploading && (
               <Text size="sm" color={colors.textSecondary}>Uploading...</Text>
             )}
