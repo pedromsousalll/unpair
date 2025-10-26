@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
   },
   picker: {
     color: '#FFFFFF',
+    backgroundColor: 'rgba(45, 45, 42, 0.8)',
     height: 50,
   },
 });
