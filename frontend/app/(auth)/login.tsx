@@ -7,10 +7,10 @@ import {
   Platform,
   ScrollView,
   Pressable,
+  ImageBackground,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { GraffitiButton, GraffitiInput, GraffitiHeader } from '../components/graffiti';
@@ -25,7 +25,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      setError('Fill in all fields, yo!');
+      setError('Fill in all fields!');
       return;
     }
 
@@ -55,41 +55,34 @@ export default function LoginScreen() {
   };
 
   return (
-    <LinearGradient
-      colors={['#0D0D0D', '#1A1A1A', '#0D0D0D']}
-      style={styles.gradient}
-    >
+    <View style={styles.container}>
+      {/* Textured Background */}
+      <View style={styles.textureOverlay} />
+      
       <SafeAreaView style={styles.safeArea}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.container}
+          style={styles.keyboardView}
         >
           <ScrollView
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
           >
-            {/* Brick Wall Pattern (subtle) */}
-            <View style={styles.brickPattern}>
-              {[...Array(20)].map((_, i) => (
-                <View key={i} style={styles.brick} />
-              ))}
-            </View>
-
             {/* Back Button */}
             <Pressable
               style={styles.backButton}
               onPress={() => router.back()}
             >
-              <Ionicons name="arrow-back" size={28} color="#FF10F0" />
+              <Ionicons name="arrow-back" size={24} color="#f1b311" />
             </Pressable>
 
-            {/* Header with Graffiti Style */}
+            {/* Header */}
             <View style={styles.header}>
-              <GraffitiHeader color="#FF10F0">
-                WELCOME BACK
+              <GraffitiHeader color="#f1b311" size="large">
+                Welcome Back
               </GraffitiHeader>
               <Text style={styles.subtitle}>
-                Drop your kicks on the market 🛹
+                Sign in to continue
               </Text>
             </View>
 
@@ -102,7 +95,7 @@ export default function LoginScreen() {
                 placeholder="your@email.com"
                 keyboardType="email-address"
                 autoCapitalize="none"
-                borderColor="#FF10F0"
+                borderColor="#f1b311"
               />
 
               <GraffitiInput
@@ -111,7 +104,7 @@ export default function LoginScreen() {
                 onChangeText={setPassword}
                 placeholder="Enter password"
                 secureTextEntry
-                borderColor="#00FF41"
+                borderColor="#f1b311"
               />
 
               {error ? (
@@ -125,7 +118,7 @@ export default function LoginScreen() {
                 variant="primary"
                 style={styles.loginButton}
               >
-                {loading ? 'LOGGING IN...' : 'LET\'S GO'}
+                {loading ? 'SIGNING IN...' : 'SIGN IN'}
               </GraffitiButton>
 
               {/* Divider */}
@@ -141,82 +134,64 @@ export default function LoginScreen() {
                 onPress={handleGoogleSignIn}
                 disabled={loading}
               >
-                <Ionicons name="logo-google" size={24} color="#FFFFFF" />
+                <Ionicons name="logo-google" size={20} color="#f1b311" />
                 <Text style={styles.googleButtonText}>
-                  SIGN IN WITH GOOGLE
+                  CONTINUE WITH GOOGLE
                 </Text>
               </Pressable>
 
               {/* Sign Up Link */}
               <View style={styles.signupContainer}>
-                <Text style={styles.signupText}>New here? </Text>
+                <Text style={styles.signupText}>Don't have an account? </Text>
                 <Pressable onPress={() => router.push('/(auth)/register')}>
-                  <Text style={styles.signupLink}>CREATE ACCOUNT</Text>
+                  <Text style={styles.signupLink}>SIGN UP</Text>
                 </Pressable>
               </View>
             </View>
-
-            {/* Spray Paint Splatters */}
-            <View style={[styles.splatter, styles.splatter1]} />
-            <View style={[styles.splatter, styles.splatter2]} />
-            <View style={[styles.splatter, styles.splatter3]} />
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  gradient: {
+  container: {
     flex: 1,
+    backgroundColor: '#373734',
+  },
+  textureOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    opacity: 0.1,
   },
   safeArea: {
     flex: 1,
   },
-  container: {
+  keyboardView: {
     flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
     padding: 24,
   },
-  brickPattern: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 300,
-    opacity: 0.05,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  brick: {
-    width: 60,
-    height: 30,
-    backgroundColor: '#666',
-    margin: 2,
-    borderRadius: 2,
-  },
   backButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(255, 16, 240, 0.15)',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(241, 179, 17, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 30,
   },
   header: {
     marginBottom: 40,
-    marginTop: 20,
   },
   subtitle: {
     fontSize: 16,
-    color: '#CCCCCC',
-    textAlign: 'left',
+    color: '#FFFFFF',
     marginTop: 8,
-    fontWeight: '600',
+    fontWeight: '300',
   },
   form: {
     flex: 1,
@@ -232,29 +207,29 @@ const styles = StyleSheet.create({
   },
   dividerLine: {
     flex: 1,
-    height: 2,
-    backgroundColor: '#333',
+    height: 1,
+    backgroundColor: '#555',
   },
   dividerText: {
     color: '#999',
     paddingHorizontal: 16,
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: 12,
+    fontWeight: '300',
   },
   googleButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'transparent',
     borderWidth: 2,
-    borderColor: '#00D9FF',
-    borderRadius: 8,
+    borderColor: '#f1b311',
+    borderRadius: 30,
     paddingVertical: 14,
-    gap: 12,
+    gap: 10,
   },
   googleButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
+    color: '#f1b311',
+    fontSize: 14,
     fontWeight: '700',
     letterSpacing: 1,
   },
@@ -265,56 +240,27 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   signupText: {
-    color: '#999',
-    fontSize: 15,
-    fontWeight: '500',
+    color: '#AAAAAA',
+    fontSize: 14,
+    fontWeight: '300',
   },
   signupLink: {
-    color: '#00FF41',
-    fontSize: 15,
-    fontWeight: '900',
+    color: '#f1b311',
+    fontSize: 14,
+    fontWeight: '700',
     letterSpacing: 1,
-    textShadowColor: 'rgba(0, 255, 65, 0.5)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 8,
   },
   errorContainer: {
     backgroundColor: 'rgba(255, 7, 58, 0.15)',
-    borderLeftWidth: 4,
+    borderLeftWidth: 3,
     borderLeftColor: '#FF073A',
     padding: 12,
-    borderRadius: 4,
+    borderRadius: 8,
     marginBottom: 16,
   },
   errorText: {
     color: '#FF073A',
     fontSize: 14,
-    fontWeight: '600',
-  },
-  splatter: {
-    position: 'absolute',
-    borderRadius: 100,
-    opacity: 0.15,
-  },
-  splatter1: {
-    width: 80,
-    height: 80,
-    backgroundColor: '#FF10F0',
-    top: 100,
-    right: 20,
-  },
-  splatter2: {
-    width: 60,
-    height: 60,
-    backgroundColor: '#00FF41',
-    bottom: 150,
-    left: 30,
-  },
-  splatter3: {
-    width: 50,
-    height: 50,
-    backgroundColor: '#FFFF00',
-    top: '50%',
-    right: 40,
+    fontWeight: '300',
   },
 });
