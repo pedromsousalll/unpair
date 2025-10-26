@@ -36,6 +36,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updateProfile } from 'firebase/auth';
 import { storage } from '../config/firebase';
+import { EmailVerificationBanner } from '../components/EmailVerificationBanner';
 
 interface Sneaker {
   id: string;
