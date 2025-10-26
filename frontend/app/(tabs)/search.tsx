@@ -163,13 +163,10 @@ export default function SearchScreen() {
                   onValueChange={setBrand}
                 />
 
-                <GraffitiInput
+                <SizePicker
                   label="Size"
                   value={size}
-                  onChangeText={setSize}
-                  placeholder="e.g., 10.5"
-                  keyboardType="decimal-pad"
-                  borderColor="#f1b311"
+                  onValueChange={setSize}
                 />
 
                 <GraffitiButton
