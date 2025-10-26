@@ -10,17 +10,25 @@ import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { GraffitiInput, GraffitiButton, GraffitiHeader, BrandPicker, SizePicker } from '../components/graffiti';
 
+const MAX_IMAGES = 5;
+
 export default function SellScreen() {
   const [foot, setFoot] = useState<'left' | 'right'>('left');
   const [model, setModel] = useState('');
   const [brand, setBrand] = useState('');
   const [size, setSize] = useState('');
-  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [condition, setCondition] = useState('Good');
+  const [imageUris, setImageUris] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const { user } = useAuth();
   const { colors } = useTheme();
 
-  const pickImage = async (useCamera: boolean) => {
+  const pickImages = async (useCamera: boolean) => {
+    if (imageUris.length >= MAX_IMAGES) {
+      Alert.alert('Max Photos', `You can only add up to ${MAX_IMAGES} photos`);
+      return;
+    }
+
     const { status } = useCamera 
       ? await ImagePicker.requestCameraPermissionsAsync()
       : await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -38,32 +46,44 @@ export default function SellScreen() {
         })
       : await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          allowsEditing: true,
-          aspect: [1, 1],
+          allowsEditing: false,
+          allowsMultipleSelection: true,
           quality: 0.7,
         });
 
-    if (!result.canceled && result.assets[0]) {
-      setImageUri(result.assets[0].uri);
+    if (!result.canceled && result.assets) {
+      const newImages = result.assets
+        .slice(0, MAX_IMAGES - imageUris.length)
+        .map(asset => asset.uri);
+      setImageUris([...imageUris, ...newImages]);
     }
   };
 
+  const removeImage = (index: number) => {
+    const newImages = imageUris.filter((_, i) => i !== index);
+    setImageUris(newImages);
+  };
+
   const handleSubmit = async () => {
-    if (!brand || !size || !imageUri) {
-      Alert.alert('Hold up! ✋', 'Add a photo, brand, and size at least!');
+    if (!brand || !size || imageUris.length === 0) {
+      Alert.alert('Hold up! ✋', 'Add at least one photo, brand, and size!');
       return;
     }
 
     setUploading(true);
 
     try {
-      const response = await fetch(imageUri);
-      const blob = await response.blob();
-      const filename = `sneakers/${user?.uid}/${Date.now()}.jpg`;
-      const storageRef = ref(storage, filename);
+      // Upload all images
+      const uploadPromises = imageUris.map(async (uri, index) => {
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        const filename = `sneakers/${user?.uid}/${Date.now()}_${index}.jpg`;
+        const storageRef = ref(storage, filename);
+        await uploadBytes(storageRef, blob);
+        return await getDownloadURL(storageRef);
+      });
 
-      await uploadBytes(storageRef, blob);
-      const downloadURL = await getDownloadURL(storageRef);
+      const downloadURLs = await Promise.all(uploadPromises);
 
       await addDoc(collection(db, 'sneakers'), {
         userId: user?.uid,
@@ -72,7 +92,9 @@ export default function SellScreen() {
         model: model.toLowerCase(),
         brand: brand.toLowerCase(),
         size,
-        imageUrl: downloadURL,
+        condition,
+        imageUrl: downloadURLs[0], // Primary image for backwards compatibility
+        imageUrls: downloadURLs, // All images
         createdAt: serverTimestamp(),
       });
 
@@ -82,12 +104,15 @@ export default function SellScreen() {
         [{ text: 'Awesome! 🛹' }]
       );
       
+      // Reset form
       setModel('');
       setBrand('');
       setSize('');
-      setImageUri(null);
+      setCondition('Good');
+      setImageUris([]);
       setFoot('left');
     } catch (err: any) {
+      console.error('Upload error:', err);
       Alert.alert('Oops! 😅', err.message || 'Something went wrong');
     } finally {
       setUploading(false);
@@ -122,40 +147,50 @@ export default function SellScreen() {
               </Text>
 
               <View style={styles.form}>
-                {/* Image Upload */}
+                {/* Image Upload Section */}
                 <View style={styles.imageSection}>
-                  <Text style={styles.label}>PHOTO</Text>
-                  {imageUri ? (
-                    <View style={styles.imagePreview}>
-                      <Image source={{ uri: imageUri }} style={styles.image} />
-                      <Pressable
-                        style={styles.removeButton}
-                        onPress={() => setImageUri(null)}
-                      >
-                        <Ionicons name="close-circle" size={32} color="#f1b311" />
-                      </Pressable>
-                    </View>
-                  ) : (
-                    <View style={styles.imagePlaceholder}>
-                      <View style={styles.uploadButtons}>
+                  <Text style={styles.label}>PHOTOS ({imageUris.length}/{MAX_IMAGES})</Text>
+                  
+                  {/* Image Grid */}
+                  <View style={styles.imageGrid}>
+                    {imageUris.map((uri, index) => (
+                      <View key={index} style={styles.imagePreview}>
+                        <Image source={{ uri }} style={styles.image} />
                         <Pressable
-                          style={styles.uploadOption}
-                          onPress={() => pickImage(true)}
+                          style={styles.removeButton}
+                          onPress={() => removeImage(index)}
                         >
-                          <Ionicons name="camera" size={40} color="#f1b311" />
-                          <Text style={styles.uploadText}>Camera</Text>
+                          <Ionicons name="close-circle" size={24} color="#f1b311" />
                         </Pressable>
-                        <View style={styles.dividerVertical} />
-                        <Pressable
-                          style={styles.uploadOption}
-                          onPress={() => pickImage(false)}
-                        >
-                          <Ionicons name="images" size={40} color="#f1b311" />
-                          <Text style={styles.uploadText}>Gallery</Text>
-                        </Pressable>
+                        {index === 0 && (
+                          <View style={styles.primaryBadge}>
+                            <Text style={styles.primaryText}>PRIMARY</Text>
+                          </View>
+                        )}
                       </View>
-                    </View>
-                  )}
+                    ))}
+                    
+                    {/* Add Photo Button */}
+                    {imageUris.length < MAX_IMAGES && (
+                      <View style={styles.imagePlaceholder}>
+                        <View style={styles.uploadButtons}>
+                          <Pressable
+                            style={styles.uploadOption}
+                            onPress={() => pickImages(true)}
+                          >
+                            <Ionicons name="camera" size={32} color="#f1b311" />
+                          </Pressable>
+                          <View style={styles.dividerVertical} />
+                          <Pressable
+                            style={styles.uploadOption}
+                            onPress={() => pickImages(false)}
+                          >
+                            <Ionicons name="images" size={32} color="#f1b311" />
+                          </Pressable>
+                        </View>
+                      </View>
+                    )}
+                  </View>
                 </View>
 
                 {/* Foot Selection */}
@@ -199,6 +234,14 @@ export default function SellScreen() {
                   onValueChange={setSize}
                 />
 
+                <GraffitiInput
+                  label="Condition"
+                  value={condition}
+                  onChangeText={setCondition}
+                  placeholder="e.g., New, Good, Fair"
+                  borderColor="#f1b311"
+                />
+
                 <GraffitiButton
                   onPress={handleSubmit}
                   variant="primary"
@@ -216,7 +259,7 @@ export default function SellScreen() {
           <View style={styles.loadingOverlay}>
             <View style={styles.loadingBox}>
               <ActivityIndicator size="large" color="#f1b311" />
-              <Text style={styles.loadingText}>Uploading your kick...</Text>
+              <Text style={styles.loadingText}>Uploading {imageUris.length} photo{imageUris.length > 1 ? 's' : ''}...</Text>
             </View>
           </View>
         )}
@@ -282,9 +325,14 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     textAlign: 'center',
   },
+  imageGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
   imagePlaceholder: {
-    width: '100%',
-    height: 200,
+    width: '48%',
+    aspectRatio: 1,
     backgroundColor: 'rgba(45, 45, 42, 0.8)',
     borderWidth: 2,
     borderColor: '#f1b311',
@@ -296,29 +344,25 @@ const styles = StyleSheet.create({
   uploadButtons: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 20,
+    gap: 12,
   },
   uploadOption: {
     alignItems: 'center',
-    padding: 20,
-  },
-  uploadText: {
-    color: '#f1b311',
-    fontSize: 14,
-    fontWeight: '700',
-    marginTop: 8,
+    padding: 12,
   },
   dividerVertical: {
     width: 2,
-    height: 60,
+    height: 40,
     backgroundColor: '#555',
   },
   imagePreview: {
-    width: '100%',
-    height: 200,
+    width: '48%',
+    aspectRatio: 1,
     borderRadius: 12,
     overflow: 'hidden',
     position: 'relative',
+    borderWidth: 2,
+    borderColor: '#f1b311',
   },
   image: {
     width: '100%',
@@ -327,10 +371,24 @@ const styles = StyleSheet.create({
   },
   removeButton: {
     position: 'absolute',
-    top: 10,
-    right: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    borderRadius: 16,
+    top: 4,
+    right: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    borderRadius: 12,
+  },
+  primaryBadge: {
+    position: 'absolute',
+    bottom: 4,
+    left: 4,
+    backgroundColor: '#f1b311',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  primaryText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#000000',
   },
   footSelector: {
     marginBottom: 20,
