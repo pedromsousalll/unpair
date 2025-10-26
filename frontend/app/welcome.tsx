@@ -30,10 +30,10 @@ export default function WelcomeScreen() {
       </View>
 
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
-        {/* GIF Animation */}
+        {/* GIF Animation - BIGGER */}
         <View style={styles.gifContainer}>
           <Image
-            source={{ uri: 'https://customer-assets.emergentagent.com/job_unpair-sneakers/artifacts/ezqfg6oe_original-7de2936008ce6ba338855d4338f71959-3.gif' }}
+            source={{ uri: 'https://customer-assets.emergentagent.com/job_unpair-sneakers/artifacts/e7ivh5w1_original-7de2936008ce6ba338855d4338f71959-5.gif' }}
             style={styles.gif}
             resizeMode="contain"
           />
@@ -91,8 +91,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   gifContainer: {
-    width: 280,
-    height: 280,
+    width: 350,
+    height: 350,
     marginBottom: 30,
     justifyContent: 'center',
     alignItems: 'center',
