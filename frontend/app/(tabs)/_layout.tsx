@@ -14,7 +14,7 @@ export default function TabLayout() {
     const isHome = pathname.includes('/home');
     
     if (!loading && !user && !isHome) {
-      router.replace('/(auth)/login');
+      router.replace('/welcome');
     }
   }, [user, loading, pathname]);
 
