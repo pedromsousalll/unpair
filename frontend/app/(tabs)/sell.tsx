@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Alert, View, Text, Image, Pressable } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Alert, View, Text, Image, Pressable, ActivityIndicator } from 'react-native';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../config/firebase';
