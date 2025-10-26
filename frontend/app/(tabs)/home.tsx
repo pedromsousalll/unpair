@@ -123,6 +123,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <Box flex={1}>
+        <EmailVerificationBanner />
         <SearchBar onSearch={handleSearch} placeholder="Search for kicks..." />
 
         <ScrollView
