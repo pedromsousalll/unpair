@@ -212,6 +212,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <EmailVerificationBanner />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Box padding="$4">
           <VStack space="lg" alignItems="center" marginBottom="$6">
