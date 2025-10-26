@@ -32,10 +32,44 @@ export default function SearchScreen() {
 
   const handleSubmit = async () => {
     if (!brand || !size) {
-      Alert.alert('Hold up! ✋', 'Fill in at least brand and size!');
+      Alert.alert('Hold up! ✋', 'Fill in at least brand and size!');\n      return;
+    }
+
+    // Check notification permission first
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    
+    if (existingStatus !== 'granted') {
+      Alert.alert(
+        'Enable Notifications? 🔔',
+        'We need permission to notify you when we find your kicks!',
+        [
+          { 
+            text: 'Not Now', 
+            style: 'cancel',
+            onPress: () => {
+              Alert.alert('No Problem!', 'You can still submit your request, but you won\'t get instant notifications.');
+            }
+          },
+          {
+            text: 'Enable',
+            onPress: async () => {
+              const { status } = await Notifications.requestPermissionsAsync();
+              if (status === 'granted') {
+                proceedWithSubmit();
+              } else {
+                Alert.alert('Notifications Disabled', 'You can enable them later in your device settings!');
+              }
+            },
+          },
+        ]
+      );
       return;
     }
 
+    proceedWithSubmit();
+  };
+
+  const proceedWithSubmit = async () => {
     setLoading(true);
 
     try {
@@ -73,20 +107,10 @@ export default function SearchScreen() {
         }
       }
 
-      const hasPermission = await requestNotificationPermission();
-      
       Alert.alert(
-        'Nice! 🎯',
-        "You'll catch a notification if we find your pair!" + 
-        (hasPermission ? " \n\nNotifications are ON 🔔" : "\n\nTurn on notifications to get instant alerts! 🔔"),
-        [
-          {
-            text: hasPermission ? 'Cool! 😎' : 'Enable Notifications',
-            onPress: hasPermission ? undefined : async () => {
-              await requestNotificationPermission();
-            }
-          }
-        ]
+        '🔥 Request Posted!',
+        'We\'ll notify you ASAP when we find your match!',
+        [{ text: 'Awesome! 😎' }]
       );
       
       setModel('');
