@@ -14,6 +14,7 @@ interface ThemeContextType {
     surface: string;
     primary: string;
     secondary: string;
+    accent: string;
     text: string;
     textSecondary: string;
     border: string;
