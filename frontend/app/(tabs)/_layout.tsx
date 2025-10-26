@@ -37,7 +37,7 @@ export default function TabLayout() {
           
           if (!user && protectedRoutes.some(route => targetRoute?.includes(route))) {
             e.preventDefault();
-            router.push('/(auth)/login');
+            router.push('/welcome');
           }
         },
       }}
