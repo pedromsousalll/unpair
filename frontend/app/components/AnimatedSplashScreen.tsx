@@ -68,9 +68,9 @@ export default function AnimatedSplashScreen({ onFinish }: AnimatedSplashScreenP
           </View>
         </View>
 
-        {/* UNPAIR Logo */}
+        {/* KICKS Logo */}
         <View style={styles.logoContainer}>
-          <Text style={styles.logoText}>UNPAIR</Text>
+          <Text style={styles.logoText}>KICKS</Text>
           <View style={styles.underline} />
           <Text style={styles.subtitle}>Find Your Match</Text>
         </View>
