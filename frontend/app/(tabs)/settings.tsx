@@ -1,16 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
-import { GraffitiHeader, GraffitiButton } from '../components/graffiti';
+import { GraffitiHeader, GraffitiButton, GraffitiInput } from '../components/graffiti';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const { user, signOut } = useAuth();
+  const { user, signOut, updatePassword } = useAuth();
+  const [showPasswordChange, setShowPasswordChange] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLogout = () => {
     Alert.alert(
@@ -24,7 +28,7 @@ export default function SettingsScreen() {
           onPress: async () => {
             try {
               await signOut();
-              router.replace('/(auth)/login');
+              router.replace('/welcome');
             } catch (err: any) {
               Alert.alert('Error', err.message || 'Failed to logout');
             }
@@ -32,6 +36,36 @@ export default function SettingsScreen() {
         },
       ]
     );
+  };
+
+  const handleChangePassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      Alert.alert('Hold up!', 'Fill in both password fields');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      Alert.alert('Oops!', 'Passwords don\'t match');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      Alert.alert('Too short!', 'Password must be at least 6 characters');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await updatePassword(newPassword);
+      Alert.alert('Success! 🎉', 'Password changed successfully');
+      setShowPasswordChange(false);
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to change password');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const SettingItem = ({ icon, title, onPress, color = '#f1b311' }: any) => (
@@ -82,9 +116,58 @@ export default function SettingsScreen() {
                   <View style={styles.userDetails}>
                     <Text style={styles.userEmail}>{user?.email}</Text>
                     <Text style={styles.userLabel}>Skater ID</Text>
+                    {user?.emailVerified ? (
+                      <View style={styles.verifiedBadge}>
+                        <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
+                        <Text style={styles.verifiedText}>Verified</Text>
+                      </View>
+                    ) : (
+                      <View style={styles.verifiedBadge}>
+                        <Ionicons name="warning" size={16} color="#f1b311" />
+                        <Text style={styles.unverifiedText}>Not Verified</Text>
+                      </View>
+                    )}
                   </View>
                 </View>
               </View>
+            </View>
+
+            {/* Security Section */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>SECURITY</Text>
+              <View style={styles.card}>
+                <SettingItem
+                  icon="lock-closed"
+                  title="Change Password"
+                  onPress={() => setShowPasswordChange(!showPasswordChange)}
+                />
+              </View>
+              {showPasswordChange && (
+                <View style={styles.passwordChangeSection}>
+                  <GraffitiInput
+                    label="New Password"
+                    value={newPassword}
+                    onChangeText={setNewPassword}
+                    placeholder="Enter new password"
+                    secureTextEntry
+                    borderColor="#f1b311"
+                  />
+                  <GraffitiInput
+                    label="Confirm Password"
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    placeholder="Confirm new password"
+                    secureTextEntry
+                    borderColor="#f1b311"
+                  />
+                  <GraffitiButton
+                    onPress={handleChangePassword}
+                    variant="primary"
+                  >
+                    {loading ? 'CHANGING...' : 'CHANGE PASSWORD'}
+                  </GraffitiButton>
+                </View>
+              )}
             </View>
 
             {/* Preferences Section */}
@@ -214,6 +297,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#AAAAAA',
     fontWeight: '300',
+    marginBottom: 4,
+  },
+  verifiedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  verifiedText: {
+    fontSize: 12,
+    color: '#4CAF50',
+    fontWeight: '600',
+  },
+  unverifiedText: {
+    fontSize: 12,
+    color: '#f1b311',
+    fontWeight: '600',
   },
   settingItem: {
     flexDirection: 'row',
@@ -235,6 +334,10 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#555',
     marginHorizontal: 16,
+  },
+  passwordChangeSection: {
+    marginTop: 16,
+    gap: 12,
   },
   logoutSection: {
     marginTop: 20,
