@@ -89,6 +89,8 @@ export default function ProductDetailScreen() {
   };
 
   const handleStartChat = async () => {
+    console.log('handleStartChat called', { user: user?.uid, sneaker: sneaker?.id });
+    
     if (!user) {
       Alert.alert(
         'Login Required',
@@ -101,11 +103,16 @@ export default function ProductDetailScreen() {
       return;
     }
 
-    if (!sneaker) return;
+    if (!sneaker) {
+      console.log('No sneaker data');
+      return;
+    }
 
     try {
       const participants = [user.uid, sneaker.userId].sort();
       const conversationId = participants.join('_');
+      
+      console.log('Creating/finding conversation:', conversationId);
 
       const convQuery = query(
         collection(db, 'conversations'),
@@ -115,17 +122,25 @@ export default function ProductDetailScreen() {
       const existingConv = await getDocs(convQuery);
 
       if (existingConv.empty) {
+        console.log('Creating new conversation');
         await addDoc(collection(db, 'conversations'), {
           conversationId,
           participants,
+          productId: sneaker.id,
+          productBrand: sneaker.brand,
+          productModel: sneaker.model,
           lastMessage: '',
           lastMessageTime: serverTimestamp(),
           createdAt: serverTimestamp(),
         });
+      } else {
+        console.log('Conversation exists');
       }
 
+      console.log('Navigating to chat:', `/chat/${conversationId}`);
       router.push(`/chat/${conversationId}`);
     } catch (error: any) {
+      console.error('Chat error:', error);
       Alert.alert('Error', error.message || 'Failed to start chat');
     }
   };
