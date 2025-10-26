@@ -1,6 +1,5 @@
 import React from 'react';
-import { Pressable, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Pressable, Text, StyleSheet, ViewStyle } from 'react-native';
 
 interface GraffitiButtonProps {
   onPress: () => void;
@@ -18,79 +17,55 @@ export const GraffitiButton: React.FC<GraffitiButtonProps> = ({
   const getColors = () => {
     switch (variant) {
       case 'primary':
-        return ['#FF10F0', '#B625FF']; // Neon pink to purple
+        return { bg: '#f1b311', text: '#000000' }; // Golden with black text
       case 'secondary':
-        return ['#00FF41', '#00D9FF']; // Neon green to blue
+        return { bg: 'transparent', text: '#f1b311' }; // Outline style
       case 'accent':
-        return ['#FFFF00', '#FF6B00']; // Yellow to orange
+        return { bg: '#E5A00D', text: '#000000' };
       default:
-        return ['#FF10F0', '#B625FF'];
+        return { bg: '#f1b311', text: '#000000' };
     }
   };
+
+  const colors = getColors();
 
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
+        { backgroundColor: colors.bg },
+        variant === 'secondary' && styles.outlineButton,
         pressed && styles.buttonPressed,
         style,
       ]}
     >
-      <LinearGradient
-        colors={getColors()}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.gradient}
-      >
-        <Text style={styles.buttonText}>{children.toUpperCase()}</Text>
-        {/* Drip effect */}
-        <LinearGradient
-          colors={['transparent', getColors()[1]]}
-          style={styles.drip}
-        />
-      </LinearGradient>
+      <Text style={[styles.buttonText, { color: colors.text }]}>
+        {children.toUpperCase()}
+      </Text>
     </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   button: {
-    borderRadius: 8,
-    overflow: 'hidden',
-    shadowColor: '#FF10F0',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 10,
-    elevation: 8,
-  },
-  buttonPressed: {
-    transform: [{ scale: 0.98 }],
-    opacity: 0.9,
-  },
-  gradient: {
+    borderRadius: 30, // Rounded
     paddingVertical: 16,
     paddingHorizontal: 32,
     alignItems: 'center',
-    position: 'relative',
+    justifyContent: 'center',
+  },
+  outlineButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: '#f1b311',
+  },
+  buttonPressed: {
+    opacity: 0.8,
   },
   buttonText: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: '#FFFFFF',
-    letterSpacing: 2,
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 4,
-  },
-  drip: {
-    position: 'absolute',
-    bottom: -8,
-    left: '50%',
-    width: 20,
-    height: 12,
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
-    transform: [{ translateX: -10 }],
+    fontSize: 16,
+    fontWeight: '700',
+    letterSpacing: 1,
   },
 });
