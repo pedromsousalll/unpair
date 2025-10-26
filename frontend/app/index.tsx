@@ -15,10 +15,11 @@ export default function Index() {
 
     const inAuthGroup = segments[0] === '(auth)';
     const inTabsGroup = segments[0] === '(tabs)';
+    const onWelcome = segments[0] === 'welcome';
 
-    // Allow unauthenticated users to access home
-    if (!user && !inAuthGroup && !inTabsGroup) {
-      router.replace('/(tabs)/home');
+    // Show welcome screen for unauthenticated users who aren't already in auth flow
+    if (!user && !inAuthGroup && !inTabsGroup && !onWelcome) {
+      router.replace('/welcome');
     } else if (user && !inTabsGroup && !inAuthGroup) {
       router.replace('/(tabs)/home');
     }
