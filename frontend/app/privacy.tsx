@@ -86,7 +86,7 @@ export default function PrivacyScreen() {
 
               <Heading size="md" color={colors.text}>8. International Data Transfers</Heading>
               <Text color={colors.text}>
-                Your information may be transferred to and maintained on servers located outside of your country. By using UNPAIR, you consent to this transfer.
+                Your information may be transferred to and maintained on servers located outside of your country. By using KICKS, you consent to this transfer.
               </Text>
 
               <Heading size="md" color={colors.text}>9. Changes to Privacy Policy</Heading>
