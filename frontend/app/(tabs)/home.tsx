@@ -122,16 +122,6 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <Box flex={1}>
-        <Box
-          padding="$4"
-          alignItems="center"
-          borderBottomWidth={1}
-          borderBottomColor={colors.border}
-          backgroundColor={colors.surface}
-        >
-          <Heading size="xl" color={colors.text}>UNPAIR</Heading>
-        </Box>
-
         <SearchBar onSearch={handleSearch} placeholder="Search for kicks..." />
 
         <ScrollView
