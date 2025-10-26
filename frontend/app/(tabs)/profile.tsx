@@ -126,18 +126,24 @@ export default function ProfileScreen() {
         await uploadBytes(storageRef, blob);
         const photoURL = await getDownloadURL(storageRef);
         
+        // Update Firebase Auth profile
         await updateProfile(user, { photoURL });
         
+        // Update Firestore user document
         await setDoc(doc(db, 'users', user.uid), {
           email: user.email,
           photoURL: photoURL,
           uid: user.uid,
+          displayName: user.displayName || user.email?.split('@')[0],
         }, { merge: true });
         
-        Alert.alert('Nice!', 'Profile photo updated!');
+        Alert.alert('Nice! 🎉', 'Profile photo updated! You may need to refresh to see changes.');
         setUploading(false);
+        // Force re-render by reloading user
+        window.location.reload();
       }
     } catch (error: any) {
+      console.error('Photo upload error:', error);
       Alert.alert('Oops!', error.message || 'Failed to upload photo');
       setUploading(false);
     }
