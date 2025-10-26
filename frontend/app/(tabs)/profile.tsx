@@ -258,7 +258,7 @@ export default function ProfileScreen() {
             </VStack>
           </VStack>
 
-          <Pressable onPress={() => router.push('/(tabs)/settings')}>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/settings')}>
             <HStack 
               padding="$3" 
               backgroundColor={colors.surface}
@@ -273,7 +273,7 @@ export default function ProfileScreen() {
               </HStack>
               <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
             </HStack>
-          </Pressable>
+          </TouchableOpacity>
 
           <Divider marginVertical="$4" />
 
