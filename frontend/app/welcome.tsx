@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { StyleSheet, View, Text, Animated, Platform, Image } from 'react-native';
+import { StyleSheet, View, Text, Animated, Platform, Image, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { GraffitiButton } from './components/graffiti';
 
@@ -28,6 +28,14 @@ export default function WelcomeScreen() {
           }]} />
         ))}
       </View>
+
+      {/* Skip Button - Top Right */}
+      <TouchableOpacity 
+        style={styles.skipButton}
+        onPress={() => router.push('/(tabs)/home')}
+      >
+        <Text style={styles.skipText}>Ignore {'>'}</Text>
+      </TouchableOpacity>
 
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         {/* GIF Animation - BIGGER */}
