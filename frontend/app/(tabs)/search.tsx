@@ -48,18 +48,14 @@ export default function SearchScreen() {
             text: 'Not Now', 
             style: 'cancel',
             onPress: () => {
-              Alert.alert('No Problem!', 'You can still submit your request, but you won\'t get instant notifications.');
+              proceedWithSubmit(false);
             }
           },
           {
             text: 'Enable',
             onPress: async () => {
               const { status } = await Notifications.requestPermissionsAsync();
-              if (status === 'granted') {
-                proceedWithSubmit();
-              } else {
-                Alert.alert('Notifications Disabled', 'You can enable them later in your device settings!');
-              }
+              proceedWithSubmit(status === 'granted');
             },
           },
         ]
@@ -67,10 +63,10 @@ export default function SearchScreen() {
       return;
     }
 
-    proceedWithSubmit();
+    proceedWithSubmit(true);
   };
 
-  const proceedWithSubmit = async () => {
+  const proceedWithSubmit = async (notificationsEnabled: boolean) => {
     setLoading(true);
 
     try {
@@ -110,8 +106,10 @@ export default function SearchScreen() {
 
       Alert.alert(
         '🔥 Request Posted!',
-        'We\'ll notify you ASAP when we find your match!',
-        [{ text: 'Awesome! 😎' }]
+        notificationsEnabled 
+          ? 'We\'ll notify you ASAP when we find your match! 🔔'
+          : 'Request saved! Enable notifications in settings to get instant alerts when we find your match.',
+        [{ text: 'Awesome! 🛹' }]
       );
       
       setModel('');
