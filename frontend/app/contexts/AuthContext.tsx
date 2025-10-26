@@ -85,7 +85,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [response]);
 
   const signUp = async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    
+    // Send verification email
+    await sendEmailVerification(user);
+    
+    // Create user document in Firestore
+    await setDoc(doc(db, 'users', user.uid), {
+      uid: user.uid,
+      email: user.email,
+      photoURL: user.photoURL || '',
+      displayName: user.displayName || email.split('@')[0],
+      emailVerified: user.emailVerified,
+      createdAt: serverTimestamp(),
+    });
   };
 
   const signIn = async (email: string, password: string) => {
@@ -97,7 +111,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // For web, use popup
       const provider = new GoogleAuthProvider();
       try {
-        await signInWithPopup(auth, provider);
+        const result = await signInWithPopup(auth, provider);
+        // Create/update user document in Firestore
+        await setDoc(doc(db, 'users', result.user.uid), {
+          uid: result.user.uid,
+          email: result.user.email,
+          photoURL: result.user.photoURL || '',
+          displayName: result.user.displayName || result.user.email?.split('@')[0],
+          emailVerified: result.user.emailVerified,
+          createdAt: serverTimestamp(),
+        }, { merge: true });
       } catch (error) {
         console.error('Google sign in error:', error);
         throw error;
@@ -112,8 +135,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await firebaseSignOut(auth);
   };
 
+  const updatePassword = async (newPassword: string) => {
+    if (!user) throw new Error('No user logged in');
+    await firebaseUpdatePassword(user, newPassword);
+  };
+
+  const resendVerificationEmail = async () => {
+    if (!user) throw new Error('No user logged in');
+    await sendEmailVerification(user);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, signUp, signIn, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      signUp, 
+      signIn, 
+      signInWithGoogle, 
+      signOut,
+      updatePassword,
+      resendVerificationEmail
+    }}>
       {children}
     </AuthContext.Provider>
   );
