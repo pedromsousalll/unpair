@@ -236,6 +236,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     paddingHorizontal: 24,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   formContainer: {
     width: '100%',
