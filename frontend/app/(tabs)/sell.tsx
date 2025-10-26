@@ -210,6 +210,16 @@ export default function SellScreen() {
             </View>
           </ScrollView>
         </KeyboardAvoidingView>
+
+        {/* Loading Overlay */}
+        {uploading && (
+          <View style={styles.loadingOverlay}>
+            <View style={styles.loadingBox}>
+              <ActivityIndicator size="large" color="#f1b311" />
+              <Text style={styles.loadingText}>Uploading your kick...</Text>
+            </View>
+          </View>
+        )}
       </SafeAreaView>
     </View>
   );
