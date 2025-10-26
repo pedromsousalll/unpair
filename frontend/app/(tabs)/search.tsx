@@ -32,7 +32,8 @@ export default function SearchScreen() {
 
   const handleSubmit = async () => {
     if (!brand || !size) {
-      Alert.alert('Hold up! ✋', 'Fill in at least brand and size!');\n      return;
+      Alert.alert('Hold up! ✋', 'Fill in at least brand and size!');
+      return;
     }
 
     // Check notification permission first
