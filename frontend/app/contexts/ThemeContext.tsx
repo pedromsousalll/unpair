@@ -34,23 +34,25 @@ export const useTheme = () => {
 };
 
 const lightColors = {
-  background: '#FFFFFF',
-  surface: '#F5F5F5',
-  primary: '#007AFF',
-  secondary: '#FF6B35',
+  background: '#F0FFFC', // Very light mint
+  surface: '#FFFFFF',
+  primary: '#9EEEE6', // Mint green
+  secondary: '#FFB6C1', // Pastel pink
+  accent: '#FFD93D', // Yellow
   text: '#1A1A1A',
   textSecondary: '#666666',
-  border: '#E0E0E0',
-  error: '#EF4444',
-  success: '#10B981',
+  border: '#E0F4F1',
+  error: '#FF6B6B',
+  success: '#4ADE80',
   card: '#FFFFFF',
 };
 
 const darkColors = {
   background: '#0A0A0A',
   surface: '#1A1A1A',
-  primary: '#FFFFFF',
-  secondary: '#FF7A50',
+  primary: '#9EEEE6', // Keep mint green in dark mode too
+  secondary: '#FFB6C1', // Pastel pink
+  accent: '#FFD93D', // Yellow
   text: '#FFFFFF',
   textSecondary: '#A0A0A0',
   border: '#333333',
