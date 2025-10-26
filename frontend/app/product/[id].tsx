@@ -89,7 +89,19 @@ export default function ProductDetailScreen() {
   };
 
   const handleStartChat = async () => {
-    if (!sneaker || !user) return;
+    if (!user) {
+      Alert.alert(
+        'Login Required',
+        'You need to be logged in to message the seller.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Login', onPress: () => router.push('/welcome') },
+        ]
+      );
+      return;
+    }
+
+    if (!sneaker) return;
 
     try {
       const participants = [user.uid, sneaker.userId].sort();
