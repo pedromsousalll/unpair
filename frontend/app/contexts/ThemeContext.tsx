@@ -15,12 +15,21 @@ interface ThemeContextType {
     primary: string;
     secondary: string;
     accent: string;
+    accentBlue: string;
     text: string;
     textSecondary: string;
     border: string;
     error: string;
     success: string;
     card: string;
+    graffiti: {
+      pink: string;
+      green: string;
+      yellow: string;
+      blue: string;
+      orange: string;
+      purple: string;
+    };
   };
 }
 
