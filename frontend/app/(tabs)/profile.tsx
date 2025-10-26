@@ -325,9 +325,9 @@ export default function ProfileScreen() {
                         {request.foot} foot - Size {request.size}
                       </Text>
                     </VStack>
-                    <Pressable onPress={() => handleDeleteRequest(request.id)}>
-                      <Ionicons name="trash-outline" size={24} color={colors.error} />
-                    </Pressable>
+                    <TouchableOpacity onPress={() => handleDeleteRequest(request.id)}>
+                      <Ionicons name="trash-outline" size={24} color="#FF0000" />
+                    </TouchableOpacity>
                   </HStack>
                 </Card>
               ))
