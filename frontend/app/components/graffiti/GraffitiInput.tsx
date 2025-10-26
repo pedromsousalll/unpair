@@ -35,6 +35,7 @@ export const GraffitiInput: React.FC<GraffitiInputProps> = ({
 const styles = StyleSheet.create({
   container: {
     marginBottom: 20,
+    width: '100%',
   },
   label: {
     fontSize: 12,
@@ -42,6 +43,7 @@ const styles = StyleSheet.create({
     color: '#f1b311',
     marginBottom: 8,
     letterSpacing: 1,
+    textAlign: 'center',
   },
   inputContainer: {
     backgroundColor: 'rgba(45, 45, 42, 0.8)',
@@ -55,11 +57,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#FFFFFF',
     fontWeight: '300',
+    textAlign: 'center',
   },
   error: {
     color: '#FF073A',
     fontSize: 12,
     marginTop: 6,
     fontWeight: '300',
+    textAlign: 'center',
   },
 });
