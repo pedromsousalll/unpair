@@ -37,6 +37,7 @@ interface Sneaker {
   size: string;
   condition: string;
   imageUrl: string;
+  imageUrls?: string[];
   createdAt: any;
 }
 
@@ -44,6 +45,7 @@ export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams();
   const [sneaker, setSneaker] = useState<Sneaker | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const { user } = useAuth();
   const { colors } = useTheme();
   const router = useRouter();
@@ -66,7 +68,7 @@ export default function ProductDetailScreen() {
           if (userDoc.exists()) {
             const userData = userDoc.data();
             userEmail = userData.email;
-            userName = userEmail?.split('@')[0] || 'Unknown';
+            userName = userData.displayName || userEmail?.split('@')[0] || 'Unknown';
             userPhotoURL = userData.photoURL || '';
           }
         } catch (err) {
@@ -89,8 +91,6 @@ export default function ProductDetailScreen() {
   };
 
   const handleStartChat = async () => {
-    console.log('handleStartChat called', { user: user?.uid, sneaker: sneaker?.id });
-    
     if (!user) {
       Alert.alert(
         'Login Required',
@@ -103,16 +103,11 @@ export default function ProductDetailScreen() {
       return;
     }
 
-    if (!sneaker) {
-      console.log('No sneaker data');
-      return;
-    }
+    if (!sneaker) return;
 
     try {
       const participants = [user.uid, sneaker.userId].sort();
       const conversationId = participants.join('_');
-      
-      console.log('Creating/finding conversation:', conversationId);
 
       const convQuery = query(
         collection(db, 'conversations'),
@@ -122,7 +117,6 @@ export default function ProductDetailScreen() {
       const existingConv = await getDocs(convQuery);
 
       if (existingConv.empty) {
-        console.log('Creating new conversation');
         await addDoc(collection(db, 'conversations'), {
           conversationId,
           participants,
@@ -133,14 +127,11 @@ export default function ProductDetailScreen() {
           lastMessageTime: serverTimestamp(),
           createdAt: serverTimestamp(),
         });
-      } else {
-        console.log('Conversation exists');
       }
 
-      console.log('Navigating to chat:', `/chat/${conversationId}`);
       router.push(`/chat/${conversationId}`);
     } catch (error: any) {
-      console.error('Chat error:', error);
+      console.error('Error starting chat:', error);
       Alert.alert('Error', error.message || 'Failed to start chat');
     }
   };
@@ -148,7 +139,7 @@ export default function ProductDetailScreen() {
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `Check out this ${sneaker?.brand} ${sneaker?.model} on UNPAIR!`,
+        message: `Check out this ${sneaker?.brand} ${sneaker?.model} on KICKS!`,
       });
     } catch (error) {
       console.log('Error sharing:', error);
@@ -216,17 +207,50 @@ export default function ProductDetailScreen() {
   }
 
   const isOwnListing = user?.uid === sneaker.userId;
+  const images = sneaker.imageUrls && sneaker.imageUrls.length > 0 ? sneaker.imageUrls : [sneaker.imageUrl];
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView>
         <Box position="relative">
           <Image
-            source={{ uri: sneaker.imageUrl }}
+            source={{ uri: images[selectedImageIndex] }}
             alt={sneaker.model}
             width="100%"
             height={400}
           />
+          
+          {/* Image thumbnails */}
+          {images.length > 1 && (
+            <HStack
+              position="absolute"
+              bottom={16}
+              left={16}
+              right={16}
+              space="sm"
+              justifyContent="center"
+            >
+              {images.map((img, index) => (
+                <Pressable
+                  key={index}
+                  onPress={() => setSelectedImageIndex(index)}
+                  style={[
+                    styles.thumbnail,
+                    selectedImageIndex === index && styles.thumbnailActive,
+                  ]}
+                >
+                  <Image
+                    source={{ uri: img }}
+                    alt={`Image ${index + 1}`}
+                    width={50}
+                    height={50}
+                    borderRadius={8}
+                  />
+                </Pressable>
+              ))}
+            </HStack>
+          )}
+          
           <HStack
             position="absolute"
             top={16}
@@ -368,5 +392,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  thumbnail: {
+    borderWidth: 2,
+    borderColor: 'transparent',
+    borderRadius: 10,
+  },
+  thumbnailActive: {
+    borderColor: '#f1b311',
   },
 });
