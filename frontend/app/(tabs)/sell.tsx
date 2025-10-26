@@ -346,4 +346,25 @@ const styles = StyleSheet.create({
   submitButton: {
     marginTop: 10,
   },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  },
+  loadingBox: {
+    backgroundColor: 'rgba(45, 45, 42, 0.95)',
+    padding: 30,
+    borderRadius: 12,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#f1b311',
+  },
+  loadingText: {
+    color: '#f1b311',
+    fontSize: 16,
+    fontWeight: '700',
+    marginTop: 16,
+  },
 });
