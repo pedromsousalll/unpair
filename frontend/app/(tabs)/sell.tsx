@@ -76,7 +76,11 @@ export default function SellScreen() {
         createdAt: serverTimestamp(),
       });
 
-      Alert.alert('Posted! 🔥', 'Your kick is now live!');
+      Alert.alert(
+        '🔥 Kick Posted!',
+        'Your sneaker is now live! We\'ll hit you up when someone\'s looking for your match.',
+        [{ text: 'Awesome! 🛹' }]
+      );
       
       setModel('');
       setBrand('');
