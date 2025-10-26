@@ -195,7 +195,7 @@ export default function ProfileScreen() {
     try {
       await signOut();
       setShowLogoutModal(false);
-      router.replace('/(auth)/login');
+      router.replace('/welcome');
     } catch (err: any) {
       Alert.alert('Error', err.message || 'Failed to logout');
       setShowLogoutModal(false);
