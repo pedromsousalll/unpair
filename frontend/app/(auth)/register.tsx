@@ -66,8 +66,16 @@ export default function RegisterScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Textured Background */}
-      <View style={styles.textureOverlay} />
+      {/* Concrete Texture Pattern */}
+      <View style={styles.texturePattern}>
+        {[...Array(100)].map((_, i) => (
+          <View key={i} style={[styles.textureSpot, { 
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            opacity: Math.random() * 0.3,
+          }]} />
+        ))}
+      </View>
       
       <SafeAreaView style={styles.safeArea}>
         <KeyboardAvoidingView
@@ -179,13 +187,20 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#373734',
   },
-  textureOverlay: {
+  texturePattern: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    opacity: 0.1,
+    zIndex: 0,
+  },
+  textureSpot: {
+    position: 'absolute',
+    width: 3,
+    height: 3,
+    backgroundColor: '#000000',
+    borderRadius: 1.5,
   },
   safeArea: {
     flex: 1,
+    zIndex: 1,
   },
   keyboardView: {
     flex: 1,
@@ -193,6 +208,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     padding: 24,
+    alignItems: 'center',
   },
   backButton: {
     width: 44,
@@ -202,27 +218,35 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 30,
+    alignSelf: 'flex-start',
   },
   header: {
     marginBottom: 40,
+    alignItems: 'center',
+    width: '100%',
   },
   subtitle: {
     fontSize: 16,
     color: '#FFFFFF',
     marginTop: 8,
     fontWeight: '300',
+    textAlign: 'center',
   },
   form: {
-    flex: 1,
+    width: '100%',
+    maxWidth: 400,
+    alignItems: 'center',
   },
   registerButton: {
     marginTop: 10,
     marginBottom: 24,
+    width: '100%',
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 24,
+    width: '100%',
   },
   dividerLine: {
     flex: 1,
@@ -234,6 +258,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontSize: 12,
     fontWeight: '300',
+    textAlign: 'center',
   },
   googleButton: {
     flexDirection: 'row',
@@ -245,6 +270,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     paddingVertical: 14,
     gap: 10,
+    width: '100%',
   },
   googleButtonText: {
     color: '#f1b311',
@@ -262,6 +288,7 @@ const styles = StyleSheet.create({
     color: '#AAAAAA',
     fontSize: 14,
     fontWeight: '300',
+    textAlign: 'center',
   },
   loginLink: {
     color: '#f1b311',
@@ -276,10 +303,12 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     marginBottom: 16,
+    width: '100%',
   },
   errorText: {
     color: '#FF073A',
     fontSize: 14,
     fontWeight: '300',
+    textAlign: 'center',
   },
 });
