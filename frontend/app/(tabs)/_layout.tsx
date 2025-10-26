@@ -11,11 +11,9 @@ export default function TabLayout() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Only check auth for non-home routes
     const isHome = pathname.includes('/home');
     
     if (!loading && !user && !isHome) {
-      // Redirect to login if trying to access protected tabs via URL
       router.replace('/(auth)/login');
     }
   }, [user, loading, pathname]);
@@ -34,7 +32,6 @@ export default function TabLayout() {
       }}
       screenListeners={{
         tabPress: (e) => {
-          // Prevent navigation to protected tabs if not authenticated
           const targetRoute = e.target?.split('--')[0];
           const protectedRoutes = ['sell', 'search', 'messages', 'profile', 'settings'];
           
@@ -54,18 +51,18 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="sell"
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="add-circle" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="search"
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="search" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="sell"
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="add-circle" size={size} color={color} />
           ),
         }}
       />
