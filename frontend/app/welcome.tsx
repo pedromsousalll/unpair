@@ -91,8 +91,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   gifContainer: {
-    width: 350,
-    height: 350,
+    width: 400,
+    height: 400,
     marginBottom: 30,
     justifyContent: 'center',
     alignItems: 'center',
