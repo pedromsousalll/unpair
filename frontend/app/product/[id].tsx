@@ -316,9 +316,12 @@ export default function ProductDetailScreen() {
                 marginTop="$4"
                 onPress={handleStartChat}
                 borderRadius="$full"
+                backgroundColor="#f1b311"
               >
-                <Ionicons name="chatbubble" size={20} color={colors.background} />
-                <ButtonText marginLeft="$2">Message Seller</ButtonText>
+                <Ionicons name="chatbubble" size={20} color="#000000" />
+                <ButtonText marginLeft="$2" color="#000000" fontWeight="$bold">
+                  MESSAGE SELLER
+                </ButtonText>
               </Button>
             )}
           </VStack>
