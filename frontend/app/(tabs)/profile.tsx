@@ -155,13 +155,15 @@ export default function ProfileScreen() {
           onPress: async () => {
             try {
               await deleteDoc(doc(db, 'sneakers', id));
-              Alert.alert('Done!', 'Listing removed');
+              // Success feedback - no need for additional alert as list updates automatically
             } catch (err: any) {
+              console.error('Delete error:', err);
               Alert.alert('Error', err.message || 'Failed to delete');
             }
           },
         },
-      ]
+      ],
+      { cancelable: true }
     );
   };
 
@@ -177,13 +179,15 @@ export default function ProfileScreen() {
           onPress: async () => {
             try {
               await deleteDoc(doc(db, 'searchRequests', id));
-              Alert.alert('Done!', 'Request removed');
+              // Success feedback - no need for additional alert as list updates automatically
             } catch (err: any) {
+              console.error('Delete error:', err);
               Alert.alert('Error', err.message || 'Failed to delete');
             }
           },
         },
-      ]
+      ],
+      { cancelable: true }
     );
   };
 
